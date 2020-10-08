@@ -16,13 +16,15 @@ namespace CsvAnalysisAndFilterTool
         {
             InitializeComponent();
         }
+        private List<string> NULL_STR_LIST = new List<string>() { "", "null", "nan" };
         private string readCSVPath;//読み込んだ元CSVのパス
         private int nRow;//行数
         private List<List<int>> intValueList;//整数データのみ保持したリスト(数値以外はint.MaxValueとして保持)
+        private List<List<long>> longValueList;//64bit整数データのみ保持したリスト(数値以外はlong.MaxValueとして保持)
         private List<List<double>> doubleValueList;//小数データのみ保持したリスト(数値以外はint.MaxValueとして保持)
         private List<List<DateTime>> datetimeValueList;//時間データのみ保持したリスト(数値以外はGlobalVar.MinDateTimeとして保持)
 
-        //起動時
+        //起動時の初期化
         private void Form1_Load(object sender, EventArgs e)
         {
             readCSVPath = null;
@@ -41,6 +43,7 @@ namespace CsvAnalysisAndFilterTool
         /// 型のカウント
         /// </summary>
         /// <param name="intCount">整数の数</param>
+        /// <param name="longCount">64bit整数の数</param>
         /// <param name="zeroCount">0の数</param>
         /// <param name="oneCount">1の数</param>
         /// <param name="doubleCount">小数の数</param>
@@ -48,7 +51,9 @@ namespace CsvAnalysisAndFilterTool
         /// <param name="blankCount">空欄の数</param>
         /// <param name="allSameFlg">全て同一値かどうかを表すフラグ</param>
         /// <param name="rowCount">行数カウント用変数</param>
-        private void ParseCount(ref int[] intCount, ref int[] zeroCount, ref int[] oneCount, ref int[] doubleCount, ref int[] DateTimeCount, ref int[] blankCount, ref bool[] allSameFlg, ref int rowCount)
+        private void ParseCount(ref int[] intCount, ref int[] zeroCount, ref int[] oneCount,
+            ref int[] longCount, ref int[] doubleCount,ref int[] DateTimeCount,
+            ref int[] blankCount, ref bool[] allSameFlg, ref int rowCount)
         {
             //CSVファイルを読み込むときに使うEncoding
             System.Text.Encoding enc = System.Text.Encoding.GetEncoding("Shift_JIS");
@@ -65,7 +70,6 @@ namespace CsvAnalysisAndFilterTool
                     bool firstHeaderFlg = checkBoxFirstRowHeader.Checked;//1行目がヘッダーかどうかを表すフラグ
                     int nCol = 0;//カラム数数
                     string[] firstRow = null;//1行目保持用（全行同一値の判定用）
-
                     //1行目の読込
                     line = sr.ReadLine();//1行読込
                     headerNames = line.Split(',');
@@ -75,6 +79,7 @@ namespace CsvAnalysisAndFilterTool
                     intCount = new int[nCol];
                     zeroCount = new int[nCol];
                     oneCount = new int[nCol];
+                    longCount = new int[nCol];
                     doubleCount = new int[nCol];
                     DateTimeCount = new int[nCol];
                     blankCount = new int[nCol];
@@ -85,6 +90,7 @@ namespace CsvAnalysisAndFilterTool
                         intCount[j] = 0;
                         zeroCount[j] = 0;
                         oneCount[j] = 0;
+                        longCount[j] = 0;
                         doubleCount[j] = 0;
                         DateTimeCount[j] = 0;
                         blankCount[j] = 0;
@@ -94,37 +100,32 @@ namespace CsvAnalysisAndFilterTool
                     //1行目がヘッダーでないとき、1行目も型の判定実施＆ヘッダ名は列カウントに変更
                     if (!firstHeaderFlg)
                     {
-                        FirstRowValueTypeJudge(headerNames, ref intCount, ref zeroCount, ref oneCount, ref doubleCount, ref DateTimeCount, ref blankCount, ref allSameFlg);
+                        FirstRowValueTypeJudge(headerNames, ref intCount, ref zeroCount, ref oneCount, ref longCount, ref doubleCount, ref DateTimeCount, ref blankCount, ref allSameFlg);
                         firstRow = line.Split(',');
                         rowCount++;
                         for (int j = 0; j < nCol; j++) headerNames[j] = (j + 1).ToString();
                     }
 
-
                     //型の判定用変数
                     int tmpi = 0;//int用
+                    long tmpl = 0;//long用
                     double tmpd = 0.0;//double用
                     DateTime tmpdt = new DateTime();//DateTime用           
-
                     //CSVを1行ずつ読み込み、型の判定
                     while (!sr.EndOfStream)
                     {
                         line = sr.ReadLine();//1行読込
                         cells = line.Split(',');
-
                         //最初の行の保持（1行目がヘッダーのとき）
                         if (rowCount == 0 && firstHeaderFlg) firstRow = line.Split(',');
-
 
                         //1カラムごとに判定
                         for (int j = 0; j < nCol; j++)
                         {
-                            //空欄の判定
+                            //null判定
                             if (cells[j] == "") blankCount[j]++;
-
                             //全行同一値の判定
                             if (cells[j] != firstRow[j]) allSameFlg[j] = false;
-
                             //整数intの判定
                             if (int.TryParse(cells[j], out tmpi))
                             {
@@ -132,7 +133,11 @@ namespace CsvAnalysisAndFilterTool
                                 if (tmpi == 0) zeroCount[j]++;//0は別途カウント
                                 else if (tmpi == 1) oneCount[j]++;//1は別途カウント
                             }
-
+                            //64bit整数longの判定
+                            else if (long.TryParse(cells[j], out tmpl))
+                            {
+                                longCount[j]++;
+                            }
                             //小数doubleの判定
                             else if (double.TryParse(cells[j], out tmpd))
                             {
@@ -140,7 +145,6 @@ namespace CsvAnalysisAndFilterTool
                                 if (tmpd == 0) zeroCount[j]++;//0は別途カウント
                                 else if (tmpd == 1) oneCount[j]++;//1は別途カウント
                             }
-
                             //日時DateTimeの判定
                             else if (DateTime.TryParse(cells[j], out tmpdt))
                             {
@@ -163,13 +167,11 @@ namespace CsvAnalysisAndFilterTool
                     //型の判定結果の表示
                     // データテーブルの作成
                     DataTable dataTableStats = new DataTable();
-
                     //カラム番号をセット
                     for (int j = 0; j < nCol; j++)
                     {
                         dataTableStats.Columns.Add((j + 1).ToString());
                     }
-
                     //カラム名をセット
                     DataRow row = dataTableStats.NewRow();
                     for (int j = 0; j < nCol; j++)
@@ -177,7 +179,6 @@ namespace CsvAnalysisAndFilterTool
                         row[j] = headerNames[j];
                     }
                     dataTableStats.Rows.Add(row);
-
                     //型カウント結果をセット
                     row = dataTableStats.NewRow();
                     for (int j = 0; j < nCol; j++)
@@ -186,44 +187,44 @@ namespace CsvAnalysisAndFilterTool
                         else if ((double)zeroCount[j] / rowCount == 1) row[j] = "全て0";
                         else if (allSameFlg[j]) row[j] = "全て同一値「" + firstRow[j] + "」";
                         else if ((double)(zeroCount[j] + oneCount[j]) / rowCount == 1) row[j] = "Boolean";
-                        else if ((double)intCount[j] / (rowCount - blankCount[j]) >= GlobalVar.valueJudgeRatio && doubleCount[j] == 0) row[j] = "整数";
-                        else if ((double)(intCount[j] + doubleCount[j]) / (rowCount - blankCount[j]) >= GlobalVar.valueJudgeRatio) row[j] = "小数";
+                        else if ((double)intCount[j] / (rowCount - blankCount[j]) >= GlobalVar.valueJudgeRatio && longCount[j] == 0 && doubleCount[j] == 0) row[j] = "整数";
+                        else if ((double)(intCount[j] + longCount[j]) / (rowCount - blankCount[j]) >= GlobalVar.valueJudgeRatio && doubleCount[j] == 0) row[j] = "64bit整数";
+                        else if ((double)(intCount[j] + longCount[j] + doubleCount[j]) / (rowCount - blankCount[j]) >= GlobalVar.valueJudgeRatio) row[j] = "小数";
                         else if ((double)DateTimeCount[j] / (rowCount - blankCount[j]) >= GlobalVar.valueJudgeRatio) row[j] = "日時";
                         else row[j] = "文字列";
                     }
                     dataTableStats.Rows.Add(row);
-
                     //個々の型の割合
-                    for (int i = 0; i < 6; i++)
+                    for (int i = 0; i < 7; i++)
                     {
                         row = dataTableStats.NewRow();
                         for (int j = 0; j < nCol; j++)
                         {
                             if (i == 0) row[j] = ((double)intCount[j] / rowCount * 100).ToString("f1") + "%";//整数の割合
-                            if (i == 1) row[j] = ((double)doubleCount[j] / rowCount * 100).ToString("f1") + "%";//小数の割合
-                            if (i == 2) row[j] = ((double)zeroCount[j] / rowCount * 100).ToString("f1") + "%";//0の割合
-                            if (i == 3) row[j] = ((double)oneCount[j] / rowCount * 100).ToString("f1") + "%";//1の割合
-                            if (i == 4) row[j] = ((double)DateTimeCount[j] / rowCount * 100).ToString("f1") + "%";//日時の割合
-                            if (i == 5) row[j] = ((double)blankCount[j] / rowCount * 100).ToString("f1") + "%";//空欄の割合
+                            if (i == 1) row[j] = ((double)longCount[j] / rowCount * 100).ToString("f1") + "%";//64bit整数の割合
+                            if (i == 2) row[j] = ((double)doubleCount[j] / rowCount * 100).ToString("f1") + "%";//小数の割合
+                            if (i == 3) row[j] = ((double)zeroCount[j] / rowCount * 100).ToString("f1") + "%";//0の割合
+                            if (i == 4) row[j] = ((double)oneCount[j] / rowCount * 100).ToString("f1") + "%";//1の割合
+                            if (i == 5) row[j] = ((double)DateTimeCount[j] / rowCount * 100).ToString("f1") + "%";//日時の割合
+                            if (i == 6) row[j] = ((double)blankCount[j] / rowCount * 100).ToString("f1") + "%";//空欄の割合
                         }
                         dataTableStats.Rows.Add(row);
                     }
-
                     //DataGridViewに登録
                     dataGridViewStats.DataSource = dataTableStats;
-
                     //行ヘッダーの表示
                     dataGridViewStats.Rows[0].HeaderCell.Value = "列名";
                     dataGridViewStats.Rows[1].HeaderCell.Value = "型判定結果";
                     dataGridViewStats.Rows[2].HeaderCell.Value = "整数の割合";
-                    dataGridViewStats.Rows[3].HeaderCell.Value = "小数の割合";
-                    dataGridViewStats.Rows[4].HeaderCell.Value = "0の割合";
-                    dataGridViewStats.Rows[5].HeaderCell.Value = "1の割合";
-                    dataGridViewStats.Rows[6].HeaderCell.Value = "日時の割合";
-                    dataGridViewStats.Rows[7].HeaderCell.Value = "空欄の割合";
+                    dataGridViewStats.Rows[3].HeaderCell.Value = "64bit整数割合";
+                    dataGridViewStats.Rows[4].HeaderCell.Value = "小数の割合";
+                    dataGridViewStats.Rows[5].HeaderCell.Value = "0の割合";
+                    dataGridViewStats.Rows[6].HeaderCell.Value = "1の割合";
+                    dataGridViewStats.Rows[7].HeaderCell.Value = "日時の割合";
+                    dataGridViewStats.Rows[8].HeaderCell.Value = "空欄の割合";
 
                     //行ヘッダーの幅を調節する
-                    dataGridViewStats.RowHeadersWidth = 100;
+                    dataGridViewStats.RowHeadersWidth = 120;
 
                     //先頭行を太字に
                     dataGridViewStats.Rows[0].DefaultCellStyle.Font = new Font(dataGridViewStats.DefaultCellStyle.Font, FontStyle.Bold);
@@ -250,12 +251,13 @@ namespace CsvAnalysisAndFilterTool
         /// <param name="DateTimeCount">日時の数</param>
         /// <param name="blankCount">空欄の数</param>
         /// <param name="allSameFlg">全て同一値かどうかを表すフラグ</param>
-        private void FirstRowValueTypeJudge(string[] cells, ref int[] intCount, ref int[] zeroCount, ref int[] oneCount, ref int[] doubleCount, ref int[] DateTimeCount, ref int[] blankCount, ref bool[] allSameFlg)
+        private void FirstRowValueTypeJudge(string[] cells, ref int[] intCount, ref int[] zeroCount, ref int[] oneCount, ref int[] longCount, ref int[] doubleCount, ref int[] DateTimeCount, ref int[] blankCount, ref bool[] allSameFlg)
         {
             int nCol = cells.Count();
 
             //型の判定用変数
             int tmpi = 0;//int用
+            long tmpl = 0;//long用
             double tmpd = 0.0;//double用
             DateTime tmpdt = new DateTime();//DateTime用          
 
@@ -264,7 +266,6 @@ namespace CsvAnalysisAndFilterTool
             {
                 //空欄の判定
                 if (cells[j] == "") blankCount[j]++;
-
                 //整数intの判定
                 if (int.TryParse(cells[j], out tmpi))
                 {
@@ -272,7 +273,11 @@ namespace CsvAnalysisAndFilterTool
                     if (tmpi == 0) zeroCount[j]++;//0は別途カウント
                     else if (tmpi == 1) oneCount[j]++;//1は別途カウント
                 }
-
+                //64bit整数longの判定
+                if (long.TryParse(cells[j], out tmpl))
+                {
+                    longCount[j]++;
+                }
                 //小数doubleの判定
                 else if (double.TryParse(cells[j], out tmpd))
                 {
@@ -280,7 +285,6 @@ namespace CsvAnalysisAndFilterTool
                     if (tmpd == 0) zeroCount[j]++;//0は別途カウント
                     else if (tmpd == 1) oneCount[j]++;//1は別途カウント
                 }
-
                 //日時DateTimeの判定
                 else if (DateTime.TryParse(cells[j], out tmpdt))
                 {
@@ -306,16 +310,19 @@ namespace CsvAnalysisAndFilterTool
             int nCol = dataTableStats.Columns.Count;//列数
             int rowCount = 0;//行数カウント用変数
             List<bool> intCalcFlg = new List<bool>();//その列が整数データかどうかを表すフラグ
+            List<bool> longCalcFlg = new List<bool>();//その列が64bit整数データかどうかを表すフラグ
             List<bool> doubleCalcFlg = new List<bool>();//その列が小数データかどうかを表すフラグ
             List<bool> datetimeCalcFlg = new List<bool>();//その列が日時データかどうかを表すフラグ
             DateTime maxDateTime = DateTime.MaxValue;
             //型の判定用変数
             int tmpi = 0;//int用
+            long tmpl = 0;//long用
             double tmpd = 0.0;//double用
             DateTime tmpdt = new DateTime();//DateTime用          
 
             //数値データ保持用リストの初期化
             intValueList = new List<List<int>>();//整数データ保持用リスト
+            longValueList = new List<List<long>>();//64bit整数データ保持用リスト
             doubleValueList = new List<List<double>>();//小数データ保持用リスト
             datetimeValueList = new List<List<DateTime>>(); ;//日時データ保持用リスト
 
@@ -324,9 +331,11 @@ namespace CsvAnalysisAndFilterTool
             {
                 //そのカラムの数値データ保持用リスト
                 List<int> intValueCol = new List<int>();
+                List<long> longValueCol = new List<long>();
                 List<double> doubleValueCol = new List<double>();
                 List<DateTime> datetimeValueCol = new List<DateTime>();
                 intValueList.Add(intValueCol);
+                longValueList.Add(longValueCol);
                 doubleValueList.Add(doubleValueCol);
                 datetimeValueList.Add(datetimeValueCol);
 
@@ -334,6 +343,9 @@ namespace CsvAnalysisAndFilterTool
                 //整数のとき
                 if (dataTableStats.Rows[1][j].ToString() == "整数") intCalcFlg.Add(true);
                 else intCalcFlg.Add(false);
+                //64bit整数のとき
+                if (dataTableStats.Rows[1][j].ToString() == "64bit整数") longCalcFlg.Add(true);
+                else longCalcFlg.Add(false);
                 //小数のとき
                 if (dataTableStats.Rows[1][j].ToString() == "小数") doubleCalcFlg.Add(true);
                 else doubleCalcFlg.Add(false);
@@ -341,7 +353,6 @@ namespace CsvAnalysisAndFilterTool
                 if (dataTableStats.Rows[1][j].ToString() == "日時") datetimeCalcFlg.Add(true);
                 else datetimeCalcFlg.Add(false);
             }
-
 
             //CSVファイルを読み込むときに使うEncoding
             System.Text.Encoding enc = System.Text.Encoding.GetEncoding("Shift_JIS");
@@ -358,14 +369,12 @@ namespace CsvAnalysisAndFilterTool
                     //1行目がヘッダーのとき、数値に含めない
                     if (checkBoxFirstRowHeader.Checked) line = sr.ReadLine();//1行進める
 
-
                     ////////CSVを1行ずつ読み込み、型の判定と数値の読込/////////
                     while (!sr.EndOfStream)
                     {
                         line = sr.ReadLine();//1行読込
                         cells = line.Split(',');
                         rowCount++;
-
                         //カラムごとに判定
                         for (int j = 0; j < nCol; j++)
                         {
@@ -378,7 +387,15 @@ namespace CsvAnalysisAndFilterTool
                                 }
                                 else intValueList[j].Add(int.MaxValue);
                             }
-
+                            //64bit整数longの判定
+                            else if (longCalcFlg[j])
+                            {
+                                if (long.TryParse(cells[j], out tmpl))
+                                {
+                                    longValueList[j].Add(tmpl);
+                                }
+                                else longValueList[j].Add(long.MaxValue);
+                            }
                             //小数doubleの判定
                             else if (doubleCalcFlg[j])
                             {
@@ -388,7 +405,6 @@ namespace CsvAnalysisAndFilterTool
                                 }
                                 else doubleValueList[j].Add(double.MaxValue);
                             }
-
                             //日時DateTimeの判定
                             else if (datetimeCalcFlg[j])
                             {
@@ -399,7 +415,6 @@ namespace CsvAnalysisAndFilterTool
                                 else datetimeValueList[j].Add(maxDateTime);
                             }
                         }
-
                         //処理している行数を表示
                         if (rowCount % 100 == 0)
                         {
@@ -407,11 +422,8 @@ namespace CsvAnalysisAndFilterTool
                         }
                     }
                 }
-
-
                 //いったんガベージコレクションでメモリに空きを作る
                 GC.Collect();
-
 
                 /////////統計値の算出/////////
                 //最小
@@ -423,6 +435,11 @@ namespace CsvAnalysisAndFilterTool
                     if (intCalcFlg[j])
                     {
                         row[j] = intValueList[j].Where(a => a != int.MaxValue).Min().ToString();
+                    }
+                    //64bit整数
+                    else if (longCalcFlg[j])
+                    {
+                        row[j] = longValueList[j].Where(a => a != long.MaxValue).Min().ToString();
                     }
                     //小数
                     else if (doubleCalcFlg[j])
@@ -447,6 +464,11 @@ namespace CsvAnalysisAndFilterTool
                     {
                         row[j] = intValueList[j].Where(a => a != int.MaxValue).Max().ToString();
                     }
+                    //64bit整数
+                    if (longCalcFlg[j])
+                    {
+                        row[j] = longValueList[j].Where(a => a != long.MaxValue).Max().ToString();
+                    }
                     //小数
                     else if (doubleCalcFlg[j])
                     {
@@ -470,6 +492,11 @@ namespace CsvAnalysisAndFilterTool
                     {
                         row[j] = intValueList[j].Where(a => a != int.MaxValue).Average().ToString("f4");
                     }
+                    //64bit整数
+                    if (longCalcFlg[j])
+                    {
+                        row[j] = longValueList[j].Where(a => a != long.MaxValue).Average().ToString("f4");
+                    }
                     //小数
                     else if (doubleCalcFlg[j])
                     {
@@ -486,7 +513,7 @@ namespace CsvAnalysisAndFilterTool
                     //整数
                     if (intCalcFlg[j])
                     {
-                        //intのみ抜き出し
+                        //intのみ抜き出し(null除去)
                         var intList = intValueList[j].Where(a => a != int.MaxValue).ToList();
                         //double型に変換
                         List<double> intToDoubleList = new List<double>();
@@ -494,10 +521,21 @@ namespace CsvAnalysisAndFilterTool
                         //標準偏差算出
                         row[j] = CSStatistics.CalcStdev(intToDoubleList).ToString("f4");
                     }
+                    //64bit整数
+                    if (longCalcFlg[j])
+                    {
+                        //longのみ抜き出し(null除去)
+                        var longList = longValueList[j].Where(a => a != long.MaxValue).ToList();
+                        //double型に変換
+                        List<double> longToDoubleList = new List<double>();
+                        foreach (var longvalue in longList) longToDoubleList.Add((double)longvalue);
+                        //標準偏差算出
+                        row[j] = CSStatistics.CalcStdev(longToDoubleList).ToString("f4");
+                    }
                     //小数
                     else if (doubleCalcFlg[j])
                     {
-                        //doubleのみ抜き出し
+                        //doubleのみ抜き出し(null除去)
                         var doubleList = doubleValueList[j].Where(a => a != double.MaxValue).ToList();
                         //標準偏差算出
                         row[j] = CSStatistics.CalcStdev(doubleList).ToString("f4");
@@ -522,6 +560,15 @@ namespace CsvAnalysisAndFilterTool
                         rowMedian[j] = intList[intList.Count / 2].ToString();
                         rowQuarter[j] = intList[intList.Count / 4].ToString();
                         rowThreeQuarters[j] = intList[intList.Count * 3 / 4].ToString();
+                    }
+                    //64bit整数
+                    if (longCalcFlg[j])
+                    {
+                        var longList = longValueList[j].Where(a => a != long.MaxValue).ToList();
+                        longList.Sort();
+                        rowMedian[j] = longList[longList.Count / 2].ToString();
+                        rowQuarter[j] = longList[longList.Count / 4].ToString();
+                        rowThreeQuarters[j] = longList[longList.Count * 3 / 4].ToString();
                     }
                     //小数
                     else if (doubleCalcFlg[j])
@@ -549,26 +596,22 @@ namespace CsvAnalysisAndFilterTool
                 dataTableStats.Rows.Add(rowThreeQuarters);
 
                 //行ヘッダーの表示
-                dataGridViewStats.Rows[8].HeaderCell.Value = "最小";
-                dataGridViewStats.Rows[9].HeaderCell.Value = "最大";
-                dataGridViewStats.Rows[10].HeaderCell.Value = "平均";
-                dataGridViewStats.Rows[11].HeaderCell.Value = "標準偏差";
-                dataGridViewStats.Rows[12].HeaderCell.Value = "メディアン";
-                dataGridViewStats.Rows[13].HeaderCell.Value = "1/4分位点";
-                dataGridViewStats.Rows[14].HeaderCell.Value = "3/4分位点";
-
+                dataGridViewStats.Rows[9].HeaderCell.Value = "最小";
+                dataGridViewStats.Rows[10].HeaderCell.Value = "最大";
+                dataGridViewStats.Rows[11].HeaderCell.Value = "平均";
+                dataGridViewStats.Rows[12].HeaderCell.Value = "標準偏差";
+                dataGridViewStats.Rows[13].HeaderCell.Value = "メディアン";
+                dataGridViewStats.Rows[14].HeaderCell.Value = "1/4分位点";
+                dataGridViewStats.Rows[15].HeaderCell.Value = "3/4分位点";
                 //フィルタの表示生成
                 DisplayFilters();
-
                 //ガベージコレクションでメモリに空きを作る
                 GC.Collect();
-
                 //算出完了を表示
                 DisplayStatusStrip("統計値算出完了");
                 labelCalcStats.Text = "各種統計値";
             }
         }
-
 
         //フィルタの表示生成(チェックボックス表示のためデータバインドはしない)
         private void DisplayFilters()
@@ -579,17 +622,14 @@ namespace CsvAnalysisAndFilterTool
                 MessageBox.Show("先に型の判定をしてください");
                 return;
             }
-
             //各種変数の宣言
             int nCol = dataGridViewStats.Columns.Count;//列数
-
 
             //カラム番号をセット
             for (int j = 0; j < nCol; j++)
             {
                 dataGridViewExtractColumnsAndFilters.Columns.Add((j + 1).ToString(), (j + 1).ToString());
             }
-
             //カラム名をセット
             DataGridViewRow nameRow = new DataGridViewRow();
             for (int j = 0; j < dataGridViewExtractColumnsAndFilters.Columns.Count; j++)
@@ -599,7 +639,6 @@ namespace CsvAnalysisAndFilterTool
                 nameRow.Cells.Add(nameCell);
             }
             dataGridViewExtractColumnsAndFilters.Rows.Add(nameRow);
-
             //カラム抽出用チェックボックスの生成
             DataGridViewRow chkRow = new DataGridViewRow();
             for (int j = 0; j < nCol; j++)
@@ -629,12 +668,11 @@ namespace CsvAnalysisAndFilterTool
             dataGridViewExtractColumnsAndFilters.Rows[2].HeaderCell.Value = "一致フィルタ";
             dataGridViewExtractColumnsAndFilters.Rows[3].HeaderCell.Value = "上限フィルタ";
             dataGridViewExtractColumnsAndFilters.Rows[4].HeaderCell.Value = "下限フィルタ";
-
             //行ヘッダーの幅を調節する
-            dataGridViewExtractColumnsAndFilters.RowHeadersWidth = 100;
+            dataGridViewExtractColumnsAndFilters.RowHeadersWidth = 120;
         }
 
-        //読み込んだCSVの表示更新
+        //読み込んだCSVの最初1000行表示
         private void RefreshReadCSVDataGrid(string readCSVPath)
         {
             //CSVファイルを読み込むときに使うEncoding
@@ -658,17 +696,13 @@ namespace CsvAnalysisAndFilterTool
                     line = sr.ReadLine();//1行読込
                     cells = line.Split(',');
                     if (!checkBoxFirstRowHeader.Checked) rowCnt++;
-
                     //カラム数保持
                     nCol = cells.Length;
-
-
                     //カラム番号をセット
                     for (int j = 0; j < nCol; j++)
                     {
                         dataTableReadCSV.Columns.Add((j + 1).ToString());
                     }
-
                     //カラム名をセット
                     DataRow row = dataTableReadCSV.NewRow();
                     for (int j = 0; j < nCol; j++)
@@ -677,56 +711,44 @@ namespace CsvAnalysisAndFilterTool
                     }
                     dataTableReadCSV.Rows.Add(row);
 
-
                     //CSVをデータテーブルに格納
                     while (!sr.EndOfStream)
                     {
                         line = sr.ReadLine();//1行読込
                         cells = line.Split(',');
-
                         row = dataTableReadCSV.NewRow();
-
+                        //全列走査してデータテーブルに格納
                         for (int j = 0; j < nCol; j++)
                         {
                             row[j] = cells[j];
                         }
-
                         dataTableReadCSV.Rows.Add(row);
-
                         rowCnt++;
-
 
                         //処理している行数を表示
                         if (rowCnt % 10 == 0)
                         {
                             DisplayStatusStrip(rowCnt.ToString());
                         }
-
                         //行数が1000を超えたら読込終了
                         if (rowCnt > 1000 - 1) break;
                     }
-
-
                     //データグリッドにデータテーブルを登録
                     dataGridViewReadCSV.DataSource = dataTableReadCSV;
-
 
                     //行ヘッダーに「列名」と表示
                     dataGridViewReadCSV.Rows[0].HeaderCell.Value = "列名";
                     //行ヘッダーの幅を調節する
                     dataGridViewReadCSV.RowHeadersWidth = 100;
-
                     //行ヘッダを何行目(0スタート)から書き始めるか（1行目がヘッダのときは1、ヘッダでないときは0）
                     int headerStartRow = 0;
                     if (checkBoxFirstRowHeader.Checked) headerStartRow = 1;
-
                     //行ヘッダーに行番号を表示
                     for (int i = 0; i < rowCnt; i++)
                     {
                         //行ヘッダーに行番号を表示
                         dataGridViewReadCSV.Rows[i + headerStartRow].HeaderCell.Value = (i + 1).ToString();
                     }
-
 
                     //読込完了を表示
                     DisplayStatusStrip("読込完了");
@@ -743,9 +765,9 @@ namespace CsvAnalysisAndFilterTool
 
             //型の判定用変数
             int tmpi = 0;//int用
+            long tmpl = 0;//long用
             double tmpd = 0.0;//double用
             DateTime tmpdt = new DateTime();//DateTime用
-
             //各リストに初期値を入力
             for (int j = 0; j < nCol; j++)
             {
@@ -768,7 +790,7 @@ namespace CsvAnalysisAndFilterTool
                 if (upCell == null) upCell = "";
                 if (downCell == null) downCell = "";
 
-                //⓪何も入力されていないとき
+                //1. 何も入力されていないとき
                 if (matchCell.Length == 0 &&
                     upCell.Length == 0 &&
                     downCell.Length == 0)
@@ -776,7 +798,7 @@ namespace CsvAnalysisAndFilterTool
                     filterFlg.Add(0);
                 }
 
-                //一致フィルタと上下限フィルタが同時に入力されている場合
+                //2. 一致フィルタと上下限フィルタが同時に入力されている場合、指定不可メッセージを出して終了
                 if (matchCell.Length > 0 &&
                 (upCell.Length > 0 || downCell.Length > 0))
                 {
@@ -784,7 +806,8 @@ namespace CsvAnalysisAndFilterTool
                     GC.Collect();
                     return false;
                 }
-                //一致フィルタ
+
+                //3. 一致フィルタのとき
                 else if (matchCell.Length > 0)
                 {
                     int stLength = matchCell.Length;
@@ -824,11 +847,13 @@ namespace CsvAnalysisAndFilterTool
                     }
                 }
 
-                //上限フィルタ
+                //4. 上限フィルタ
                 else if (upCell.Length > 0)
                 {
-                    //整数のとき
-                    if (dataGridViewStats[j, 1].Value.ToString() == "整数")
+                    //数値のとき
+                    if (dataGridViewStats[j, 1].Value.ToString() == "整数"
+                        || dataGridViewStats[j, 1].Value.ToString() == "64bit整数"
+                        || dataGridViewStats[j, 1].Value.ToString() == "小数")
                     {
                         //上限に入力された値が数値のとき、処理を進める
                         if (double.TryParse(upCell, out tmpd))
@@ -837,11 +862,13 @@ namespace CsvAnalysisAndFilterTool
                             //下限が入力されているとき
                             if (downCell.Length > 0)
                             {
-                                //下限に入力された値が数値のとき、「上下限整数:12」を入力
+                                //下限に入力された値が数値のとき、「整数上下限:12」「64bit整数上下限:22」「小数上下限:32」を入力
                                 if (double.TryParse(downCell, out tmpd))
                                 {
                                     DownValue[j] = tmpd;
-                                    filterFlg.Add(12);
+                                    if (dataGridViewStats[j, 1].Value.ToString() == "整数") filterFlg.Add(12);
+                                    else if (dataGridViewStats[j, 1].Value.ToString() == "64bit整数") filterFlg.Add(22);
+                                    else filterFlg.Add(32);
                                     //上限より下限が大きいとき、処理を打ち切り
                                     if (DownValue[j] > UpValue[j])
                                     {
@@ -856,10 +883,12 @@ namespace CsvAnalysisAndFilterTool
                                     return false;
                                 }
                             }
-                            //下限が入力されていないとき、「上限のみ整数:10」を入力
+                            //下限が入力されていないとき、「整数上限のみ:10」「64bit整数上限のみ:20」「小数上限のみ:30」を入力
                             else
                             {
-                                filterFlg.Add(10);
+                                if (dataGridViewStats[j, 1].Value.ToString() == "整数") filterFlg.Add(10);
+                                else if (dataGridViewStats[j, 1].Value.ToString() == "64bit整数") filterFlg.Add(2);
+                                else filterFlg.Add(30);
                             }
                         }
                         //上限に入力されたのが数値でないとき、処理を打ち切り
@@ -869,50 +898,6 @@ namespace CsvAnalysisAndFilterTool
                             return false;
                         }
                     }
-
-                    //小数のとき
-                    else if (dataGridViewStats[j, 1].Value.ToString() == "小数")
-                    {
-                        //上限に入力された値が数値のとき、処理を進める
-                        if (double.TryParse(upCell, out tmpd))
-                        {
-                            UpValue[j] = tmpd;
-                            //下限が入力されているとき
-                            if (downCell.Length > 0)
-                            {
-                                //下限に入力された値が数値のとき、「上下限小数:22」を入力
-                                if (double.TryParse(downCell, out tmpd))
-                                {
-                                    DownValue[j] = tmpd;
-                                    filterFlg.Add(22);
-                                    //上限より下限が大きいとき、処理を打ち切り
-                                    if (DownValue[j] > UpValue[j])
-                                    {
-                                        MessageBox.Show("上限より下限の方が大きいです " + (j + 1).ToString() + "列目");
-                                        return false;
-                                    }
-                                }
-                                //上下限に入力されたのが数値でないとき、処理を打ち切り
-                                else
-                                {
-                                    MessageBox.Show("下限には数値を指定してください " + (j + 1).ToString() + "列目");
-                                    return false;
-                                }
-                            }
-                            //下限が入力されていないとき、「上限のみ小数:20」を入力
-                            else
-                            {
-                                filterFlg.Add(20);
-                            }
-                        }
-                        //上限に入力されたのが数値でないとき、処理を打ち切り
-                        else
-                        {
-                            MessageBox.Show("上限には数値を指定してください " + (j + 1).ToString() + "列目");
-                            return false;
-                        }
-                    }
-
                     //日時のとき
                     else if (dataGridViewStats[j, 1].Value.ToString() == "日時")
                     {
@@ -923,11 +908,11 @@ namespace CsvAnalysisAndFilterTool
                             //下限が入力されているとき
                             if (downCell.Length > 0)
                             {
-                                //下限に入力された値が数値のとき、「上下限日時:32」を入力
+                                //下限に入力された値が数値のとき、「日時上下限:42」を入力
                                 if (DateTime.TryParse(downCell, out tmpdt))
                                 {
                                     DownDateTime[j] = tmpdt;
-                                    filterFlg.Add(32);
+                                    filterFlg.Add(42);
                                     //上限より下限が大きいとき、処理を打ち切り
                                     if (DownDateTime[j] > UpDateTime[j])
                                     {
@@ -942,10 +927,10 @@ namespace CsvAnalysisAndFilterTool
                                     return false;
                                 }
                             }
-                            //下限が入力されていないとき、「上限のみ日時:30」を入力
+                            //下限が入力されていないとき、「日時上限のみ40」を入力
                             else
                             {
-                                filterFlg.Add(30);
+                                filterFlg.Add(40);
                             }
                         }
                         //上限に入力されたのが日時でないとき、処理を打ち切り
@@ -955,7 +940,6 @@ namespace CsvAnalysisAndFilterTool
                             return false;
                         }
                     }
-
                     //数値、日時でないとき、処理を打ち切り
                     else
                     {
@@ -964,17 +948,21 @@ namespace CsvAnalysisAndFilterTool
                     }
                 }
 
-                //下限フィルタ
+                //5. 下限フィルタ
                 else if (downCell.Length > 0)
                 {
-                    //整数のとき
-                    if (dataGridViewStats[j, 1].Value.ToString() == "整数")
+                    //数値のとき
+                    if (dataGridViewStats[j, 1].Value.ToString() == "整数"
+                        || dataGridViewStats[j, 1].Value.ToString() == "64bit整数"
+                        || dataGridViewStats[j, 1].Value.ToString() == "小数")
                     {
-                        //下限に入力された値が数値のとき、「下限のみ整数:11」を入力
+                        //下限に入力された値が数値のとき、「整数下限のみ:11」「64bit整数下限のみ:21」「小数下限のみ:31」を入力
                         if (double.TryParse(downCell, out tmpd))
                         {
                             DownValue[j] = tmpd;
-                            filterFlg.Add(11);
+                            if (dataGridViewStats[j, 1].Value.ToString() == "整数") filterFlg.Add(11);
+                            else if (dataGridViewStats[j, 1].Value.ToString() == "64bit整数") filterFlg.Add(21);
+                            else filterFlg.Add(31);
                         }
                         //上下限に入力されたのが数値でないとき、処理を打ち切り
                         else
@@ -983,32 +971,14 @@ namespace CsvAnalysisAndFilterTool
                             return false;
                         }
                     }
-
-                    //小数のとき
-                    else if (dataGridViewStats[j, 1].Value.ToString() == "小数")
-                    {
-                        //下限に入力された値が数値のとき、「下限のみ整数:21」を入力
-                        if (double.TryParse(downCell, out tmpd))
-                        {
-                            DownValue[j] = tmpd;
-                            filterFlg.Add(21);
-                        }
-                        //上下限に入力されたのが数値でないとき、処理を打ち切り
-                        else
-                        {
-                            MessageBox.Show("下限には数値を指定してください " + (j + 1).ToString() + "列目");
-                            return false;
-                        }
-                    }
-
                     //日時のとき
                     else if (dataGridViewStats[j, 1].Value.ToString() == "日時")
                     {
-                        //下限に入力された値が数値のとき、「下限のみ日時:31」を入力
+                        //下限に入力された値が数値のとき、「日時下限のみ:31」を入力
                         if (DateTime.TryParse(downCell, out tmpdt))
                         {
                             DownDateTime[j] = tmpdt;
-                            filterFlg.Add(31);
+                            filterFlg.Add(41);
                         }
                         //上下限に入力されたのが数値でないとき、処理を打ち切り
                         else
@@ -1017,7 +987,6 @@ namespace CsvAnalysisAndFilterTool
                             return false;
                         }
                     }
-
                     //数値、日時でないとき、処理を打ち切り
                     else
                     {
@@ -1033,12 +1002,11 @@ namespace CsvAnalysisAndFilterTool
                 if (UpDateTime[j] < DateTime.MaxValue) dataGridViewExtractColumnsAndFilters[j, 3].Value = UpDateTime[j].ToString();
                 if (DownDateTime[j] > DateTime.MinValue) dataGridViewExtractColumnsAndFilters[j, 4].Value = DownDateTime[j].ToString();
             }
-
             //正常に読み込み終了したので、trueを返す
             return true;
         }
 
-
+        //フィルタ処理の実行と結果CSV出力
         private void executeFiltersAndOutputCSV(string savePath, List<bool> columnOutputFlg, List<int> filterFlg, List<string> searchString,
             List<double> UpValue, List<double> DownValue, List<DateTime> UpDateTime, List<DateTime> DownDateTime)
         {
@@ -1050,6 +1018,7 @@ namespace CsvAnalysisAndFilterTool
             int nCol = dataGridViewStats.Columns.Count;//カラム数
             //各変数型の最大値を保持
             int maxInt = int.MaxValue;
+            long maxLong = long.MaxValue;
             double maxDouble = double.MaxValue;
             DateTime maxDateTime = DateTime.MaxValue;
             //最大出力行数
@@ -1082,14 +1051,12 @@ namespace CsvAnalysisAndFilterTool
                             sw.WriteLine(string.Join(",", rowString));
                         }
 
-
                         ////////CSVを1行ずつ読み込み、フィルタ判定/////////
                         while (!sr.EndOfStream)
                         {
                             line = sr.ReadLine();//1行読込
                             cells = line.Split(',');
                             bool deleteFlg = false;//フィルタに当てはまらなったときのフラグ
-
 
                             //ステップ1：フィルタの判定を列ごとに実施
                             for (int j = 0; j < nCol; j++)
@@ -1110,7 +1077,6 @@ namespace CsvAnalysisAndFilterTool
                                         break;
                                     }
                                 }
-
                                 //②ワイルドカード前（後方一致）
                                 else if (filterFlg[j] == 2)
                                 {
@@ -1124,7 +1090,6 @@ namespace CsvAnalysisAndFilterTool
                                         break;
                                     }
                                 }
-
                                 //③ワイルドカード後（前方一致）
                                 else if (filterFlg[j] == 3)
                                 {
@@ -1137,7 +1102,6 @@ namespace CsvAnalysisAndFilterTool
                                         break;
                                     }
                                 }
-
                                 //④ワイルドカード前後（部分一致）
                                 else if (filterFlg[j] == 4)
                                 {
@@ -1164,8 +1128,20 @@ namespace CsvAnalysisAndFilterTool
                                         break;
                                     }
                                 }
-                                //20：小数の上限
+                                //20：64bit整数の上限
                                 else if (filterFlg[j] == 20)
+                                {
+                                    //値がUpValue以下なら、次列の判定に
+                                    if (longValueList[j][readRowCount] <= UpValue[j]) continue;
+                                    //一致しなかったとき、削除フラグをtrueにしてその行の判定を終了
+                                    else
+                                    {
+                                        deleteFlg = true;
+                                        break;
+                                    }
+                                }
+                                //30：小数の上限
+                                else if (filterFlg[j] == 30)
                                 {
                                     //値がUpValue以下なら、次列の判定に
                                     if (doubleValueList[j][readRowCount] <= UpValue[j]) continue;
@@ -1176,8 +1152,8 @@ namespace CsvAnalysisAndFilterTool
                                         break;
                                     }
                                 }
-                                //30：日時の上限
-                                else if (filterFlg[j] == 30)
+                                //40：日時の上限
+                                else if (filterFlg[j] == 40)
                                 {
                                     //値がUpDateTime以下なら、次列の判定に
                                     if (datetimeValueList[j][readRowCount] <= UpDateTime[j]) continue;
@@ -1204,8 +1180,22 @@ namespace CsvAnalysisAndFilterTool
                                         break;
                                     }
                                 }
-                                //21：小数の下限
+                                //21：64bit整数の下限
                                 else if (filterFlg[j] == 21)
+                                {
+                                    //値の取得
+                                    long cellValue = longValueList[j][readRowCount];
+                                    //値が整数(long.MaxValueでない)かつDownValue以上なら、次列の判定に
+                                    if (cellValue != maxLong && cellValue >= DownValue[j]) continue;
+                                    //一致しなかったとき、削除フラグをtrueにしてその行の判定を終了
+                                    else
+                                    {
+                                        deleteFlg = true;
+                                        break;
+                                    }
+                                }
+                                //31：小数の下限
+                                else if (filterFlg[j] == 31)
                                 {
                                     //値の取得
                                     double cellValue = doubleValueList[j][readRowCount];
@@ -1218,8 +1208,8 @@ namespace CsvAnalysisAndFilterTool
                                         break;
                                     }
                                 }
-                                //31：日時の下限
-                                else if (filterFlg[j] == 31)
+                                //41：日時の下限
+                                else if (filterFlg[j] == 41)
                                 {
                                     //値の取得
                                     DateTime cellValue = datetimeValueList[j][readRowCount];
@@ -1239,7 +1229,7 @@ namespace CsvAnalysisAndFilterTool
                                 {
                                     //値の取得
                                     int cellValue = intValueList[j][readRowCount];
-                                    //値が整数(int.MaxValueでない)かつUpValue以上なら、次列の判定に
+                                    //値がDownValue以上UpValue以下なら、次列の判定に
                                     if (cellValue <= UpValue[j] && cellValue >= DownValue[j]) continue;
                                     //一致しなかったとき、削除フラグをtrueにしてその行の判定を終了
                                     else
@@ -1248,12 +1238,12 @@ namespace CsvAnalysisAndFilterTool
                                         break;
                                     }
                                 }
-                                //22：小数の上下限
+                                //22：64bit整数の上下限
                                 else if (filterFlg[j] == 22)
                                 {
                                     //値の取得
-                                    double cellValue = doubleValueList[j][readRowCount];
-                                    //値が整数(int.MaxValueでない)かつUpValue以上なら、次列の判定に
+                                    long cellValue = longValueList[j][readRowCount];
+                                    //値がDownValue以上UpValue以下なら、次列の判定に
                                     if (cellValue <= UpValue[j] && cellValue >= DownValue[j]) continue;
                                     //一致しなかったとき、削除フラグをtrueにしてその行の判定を終了
                                     else
@@ -1262,12 +1252,26 @@ namespace CsvAnalysisAndFilterTool
                                         break;
                                     }
                                 }
-                                //32：日時の上下限
+                                //32：小数の上下限
                                 else if (filterFlg[j] == 32)
                                 {
                                     //値の取得
+                                    double cellValue = doubleValueList[j][readRowCount];
+                                    //値がDownValue以上UpValue以下な、次列の判定に
+                                    if (cellValue <= UpValue[j] && cellValue >= DownValue[j]) continue;
+                                    //一致しなかったとき、削除フラグをtrueにしてその行の判定を終了
+                                    else
+                                    {
+                                        deleteFlg = true;
+                                        break;
+                                    }
+                                }
+                                //42：日時の上下限
+                                else if (filterFlg[j] == 42)
+                                {
+                                    //値の取得
                                     DateTime cellValue = datetimeValueList[j][readRowCount];
-                                    //値が整数(int.MaxValueでない)かつUpValue以上なら、次列の判定に
+                                    //値がDownValue以上UpValue以下な、次列の判定に
                                     if (cellValue <= UpDateTime[j] && cellValue >= DownDateTime[j]) continue;
                                     //一致しなかったとき、削除フラグをtrueにしてその行の判定を終了
                                     else
@@ -1366,12 +1370,13 @@ namespace CsvAnalysisAndFilterTool
             int[] intCount = null;
             int[] zeroCount = null;
             int[] oneCount = null;
+            int[] longCount = null;
             int[] doubleCount = null;
             int[] DateTimeCount = null;
             int[] blankCount = null;
             bool[] allSameFlg = null;
             int rowCount = 0;
-            ParseCount(ref intCount, ref zeroCount, ref oneCount, ref doubleCount, ref DateTimeCount, ref blankCount, ref allSameFlg, ref rowCount);
+            ParseCount(ref intCount, ref zeroCount, ref oneCount, ref longCount, ref doubleCount, ref DateTimeCount, ref blankCount, ref allSameFlg, ref rowCount);
         }
 
         private void buttonCalcStats_Click(object sender, EventArgs e)
@@ -1388,8 +1393,7 @@ namespace CsvAnalysisAndFilterTool
         {
             dataGridViewReadCSV.HorizontalScrollingOffset = dataGridViewStats.HorizontalScrollingOffset;
         }
-
-
+        
 
         private void buttonExtract_Click(object sender, EventArgs e)
         {
@@ -1404,8 +1408,7 @@ namespace CsvAnalysisAndFilterTool
                 MessageBox.Show("先に統計値の算出をしてください");
                 return;
             }
-
-
+            
             /////DataGridViewのチェックボックスを読み取り、カラムの出力有無のフラグを作成////
             int nCol = dataGridViewStats.Columns.Count;//カラム数
             List<bool> columnOutputFlg = new List<bool>();
@@ -1430,9 +1433,7 @@ namespace CsvAnalysisAndFilterTool
             //DataGridView→リストへのフィルタ内容の読み込み。失敗したら処理を打ち切り
             if (!readFilters(ref filterFlg, ref searchString, ref UpValue, ref DownValue, ref UpDateTime, ref DownDateTime)) return;
 
-
             /////////////フィルタを適用してCSVを書き込む///////////////
-
             //保存するCSVのパスを指定する
             MessageBox.Show("保存するCSV名を指定してください");
             string savePath = "";//保存するCSVのパス            
@@ -1451,9 +1452,7 @@ namespace CsvAnalysisAndFilterTool
             executeFiltersAndOutputCSV(savePath, columnOutputFlg, filterFlg, searchString, UpValue, DownValue, UpDateTime, DownDateTime);
 
         }
-
-
-
+        
         private void buttonOutputStatsCSV_Click(object sender, EventArgs e)
         {
             //CSVファイルを読み書きするときに使うEncoding
