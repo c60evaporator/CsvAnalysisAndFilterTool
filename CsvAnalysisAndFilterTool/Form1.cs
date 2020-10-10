@@ -1384,16 +1384,15 @@ namespace CsvAnalysisAndFilterTool
             CalcStats();
         }
 
-        private void dataGridViewReadCSV_Scroll(object sender, ScrollEventArgs e)
-        {
-            dataGridViewStats.HorizontalScrollingOffset = dataGridViewReadCSV.HorizontalScrollingOffset;
-        }
-
         private void dataGridViewStats_Scroll(object sender, ScrollEventArgs e)
         {
-            dataGridViewReadCSV.HorizontalScrollingOffset = dataGridViewStats.HorizontalScrollingOffset;
+            dataGridViewExtractColumnsAndFilters.HorizontalScrollingOffset = dataGridViewStats.HorizontalScrollingOffset;
         }
-        
+
+        private void dataGridViewExtractColumnsAndFilters_Scroll(object sender, ScrollEventArgs e)
+        {
+            dataGridViewStats.HorizontalScrollingOffset = dataGridViewExtractColumnsAndFilters.HorizontalScrollingOffset;
+        }
 
         private void buttonExtract_Click(object sender, EventArgs e)
         {

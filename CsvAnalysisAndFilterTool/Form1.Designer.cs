@@ -47,8 +47,8 @@
             this.numericUpDownMaxOutputRows = new System.Windows.Forms.NumericUpDown();
             this.label2 = new System.Windows.Forms.Label();
             this.groupBoxOutputEncode = new System.Windows.Forms.GroupBox();
-            this.radioButtonShiftJIS = new System.Windows.Forms.RadioButton();
             this.radioButtonUTF8 = new System.Windows.Forms.RadioButton();
+            this.radioButtonShiftJIS = new System.Windows.Forms.RadioButton();
             this.statusStrip1.SuspendLayout();
             ((System.ComponentModel.ISupportInitialize)(this.dataGridViewReadCSV)).BeginInit();
             ((System.ComponentModel.ISupportInitialize)(this.dataGridViewStats)).BeginInit();
@@ -151,6 +151,7 @@
             this.dataGridViewStats.RowTemplate.Height = 24;
             this.dataGridViewStats.Size = new System.Drawing.Size(1000, 200);
             this.dataGridViewStats.TabIndex = 8;
+            this.dataGridViewStats.Scroll += new System.Windows.Forms.ScrollEventHandler(this.dataGridViewStats_Scroll);
             // 
             // label3
             // 
@@ -170,6 +171,7 @@
             this.dataGridViewExtractColumnsAndFilters.RowTemplate.Height = 24;
             this.dataGridViewExtractColumnsAndFilters.Size = new System.Drawing.Size(1000, 120);
             this.dataGridViewExtractColumnsAndFilters.TabIndex = 10;
+            this.dataGridViewExtractColumnsAndFilters.Scroll += new System.Windows.Forms.ScrollEventHandler(this.dataGridViewExtractColumnsAndFilters_Scroll);
             // 
             // buttonExtract
             // 
@@ -248,6 +250,16 @@
             this.groupBoxOutputEncode.TabStop = false;
             this.groupBoxOutputEncode.Text = "出力エンコード";
             // 
+            // radioButtonUTF8
+            // 
+            this.radioButtonUTF8.AutoSize = true;
+            this.radioButtonUTF8.Location = new System.Drawing.Point(6, 55);
+            this.radioButtonUTF8.Name = "radioButtonUTF8";
+            this.radioButtonUTF8.Size = new System.Drawing.Size(76, 23);
+            this.radioButtonUTF8.TabIndex = 1;
+            this.radioButtonUTF8.Text = "UTF-8";
+            this.radioButtonUTF8.UseVisualStyleBackColor = true;
+            // 
             // radioButtonShiftJIS
             // 
             this.radioButtonShiftJIS.AutoSize = true;
@@ -259,16 +271,6 @@
             this.radioButtonShiftJIS.TabStop = true;
             this.radioButtonShiftJIS.Text = "Shift-JIS";
             this.radioButtonShiftJIS.UseVisualStyleBackColor = true;
-            // 
-            // radioButtonUTF8
-            // 
-            this.radioButtonUTF8.AutoSize = true;
-            this.radioButtonUTF8.Location = new System.Drawing.Point(6, 55);
-            this.radioButtonUTF8.Name = "radioButtonUTF8";
-            this.radioButtonUTF8.Size = new System.Drawing.Size(76, 23);
-            this.radioButtonUTF8.TabIndex = 1;
-            this.radioButtonUTF8.Text = "UTF-8";
-            this.radioButtonUTF8.UseVisualStyleBackColor = true;
             // 
             // Form1
             // 
