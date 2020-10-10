@@ -48,12 +48,12 @@ namespace CsvAnalysisAndFilterTool
         /// <param name="oneCount">1の数</param>
         /// <param name="doubleCount">小数の数</param>
         /// <param name="DateTimeCount">日時の数</param>
-        /// <param name="blankCount">空欄の数</param>
+        /// <param name="nullCount">nullの数</param>
         /// <param name="allSameFlg">全て同一値かどうかを表すフラグ</param>
         /// <param name="rowCount">行数カウント用変数</param>
         private void ParseCount(ref int[] intCount, ref int[] zeroCount, ref int[] oneCount,
             ref int[] longCount, ref int[] doubleCount,ref int[] DateTimeCount,
-            ref int[] blankCount, ref bool[] allSameFlg, ref int rowCount)
+            ref int[] nullCount, ref bool[] allSameFlg, ref int rowCount)
         {
             //CSVファイルを読み込むときに使うEncoding
             System.Text.Encoding enc = System.Text.Encoding.GetEncoding("Shift_JIS");
@@ -82,7 +82,7 @@ namespace CsvAnalysisAndFilterTool
                     longCount = new int[nCol];
                     doubleCount = new int[nCol];
                     DateTimeCount = new int[nCol];
-                    blankCount = new int[nCol];
+                    nullCount = new int[nCol];
                     allSameFlg = new bool[nCol];
                     rowCount = 0;
                     for (int j = 0; j < nCol; j++)
@@ -93,14 +93,14 @@ namespace CsvAnalysisAndFilterTool
                         longCount[j] = 0;
                         doubleCount[j] = 0;
                         DateTimeCount[j] = 0;
-                        blankCount[j] = 0;
+                        nullCount[j] = 0;
                         allSameFlg[j] = true;
                     }
 
                     //1行目がヘッダーでないとき、1行目も型の判定実施＆ヘッダ名は列カウントに変更
                     if (!firstHeaderFlg)
                     {
-                        FirstRowValueTypeJudge(headerNames, ref intCount, ref zeroCount, ref oneCount, ref longCount, ref doubleCount, ref DateTimeCount, ref blankCount, ref allSameFlg);
+                        FirstRowValueTypeJudge(headerNames, ref intCount, ref zeroCount, ref oneCount, ref longCount, ref doubleCount, ref DateTimeCount, ref nullCount, ref allSameFlg);
                         firstRow = line.Split(',');
                         rowCount++;
                         for (int j = 0; j < nCol; j++) headerNames[j] = (j + 1).ToString();
@@ -123,7 +123,7 @@ namespace CsvAnalysisAndFilterTool
                         for (int j = 0; j < nCol; j++)
                         {
                             //null判定
-                            if (cells[j] == "") blankCount[j]++;
+                            if (NULL_STR_LIST.Contains(cells[j])) nullCount[j]++;
                             //全行同一値の判定
                             if (cells[j] != firstRow[j]) allSameFlg[j] = false;
                             //整数intの判定
@@ -183,14 +183,14 @@ namespace CsvAnalysisAndFilterTool
                     row = dataTableStats.NewRow();
                     for (int j = 0; j < nCol; j++)
                     {
-                        if ((double)blankCount[j] / rowCount == 1) row[j] = "全て空白";
+                        if ((double)nullCount[j] / rowCount == 1) row[j] = "全て空白";
                         else if ((double)zeroCount[j] / rowCount == 1) row[j] = "全て0";
                         else if (allSameFlg[j]) row[j] = "全て同一値「" + firstRow[j] + "」";
                         else if ((double)(zeroCount[j] + oneCount[j]) / rowCount == 1) row[j] = "Boolean";
-                        else if ((double)intCount[j] / (rowCount - blankCount[j]) >= GlobalVar.valueJudgeRatio && longCount[j] == 0 && doubleCount[j] == 0) row[j] = "整数";
-                        else if ((double)(intCount[j] + longCount[j]) / (rowCount - blankCount[j]) >= GlobalVar.valueJudgeRatio && doubleCount[j] == 0) row[j] = "64bit整数";
-                        else if ((double)(intCount[j] + longCount[j] + doubleCount[j]) / (rowCount - blankCount[j]) >= GlobalVar.valueJudgeRatio) row[j] = "小数";
-                        else if ((double)DateTimeCount[j] / (rowCount - blankCount[j]) >= GlobalVar.valueJudgeRatio) row[j] = "日時";
+                        else if ((double)intCount[j] / (rowCount - nullCount[j]) >= GlobalVar.valueJudgeRatio && longCount[j] == 0 && doubleCount[j] == 0) row[j] = "整数";
+                        else if ((double)(intCount[j] + longCount[j]) / (rowCount - nullCount[j]) >= GlobalVar.valueJudgeRatio && doubleCount[j] == 0) row[j] = "64bit整数";
+                        else if ((double)(intCount[j] + longCount[j] + doubleCount[j]) / (rowCount - nullCount[j]) >= GlobalVar.valueJudgeRatio) row[j] = "小数";
+                        else if ((double)DateTimeCount[j] / (rowCount - nullCount[j]) >= GlobalVar.valueJudgeRatio) row[j] = "日時";
                         else row[j] = "文字列";
                     }
                     dataTableStats.Rows.Add(row);
@@ -206,7 +206,7 @@ namespace CsvAnalysisAndFilterTool
                             if (i == 3) row[j] = ((double)zeroCount[j] / rowCount * 100).ToString("f1") + "%";//0の割合
                             if (i == 4) row[j] = ((double)oneCount[j] / rowCount * 100).ToString("f1") + "%";//1の割合
                             if (i == 5) row[j] = ((double)DateTimeCount[j] / rowCount * 100).ToString("f1") + "%";//日時の割合
-                            if (i == 6) row[j] = ((double)blankCount[j] / rowCount * 100).ToString("f1") + "%";//空欄の割合
+                            if (i == 6) row[j] = ((double)nullCount[j] / rowCount * 100).ToString("f1") + "%";//空欄の割合
                         }
                         dataTableStats.Rows.Add(row);
                     }
@@ -249,9 +249,9 @@ namespace CsvAnalysisAndFilterTool
         /// <param name="oneCount">1の数</param>
         /// <param name="doubleCount">小数の数</param>
         /// <param name="DateTimeCount">日時の数</param>
-        /// <param name="blankCount">空欄の数</param>
+        /// <param name="nullCount">nullの数</param>
         /// <param name="allSameFlg">全て同一値かどうかを表すフラグ</param>
-        private void FirstRowValueTypeJudge(string[] cells, ref int[] intCount, ref int[] zeroCount, ref int[] oneCount, ref int[] longCount, ref int[] doubleCount, ref int[] DateTimeCount, ref int[] blankCount, ref bool[] allSameFlg)
+        private void FirstRowValueTypeJudge(string[] cells, ref int[] intCount, ref int[] zeroCount, ref int[] oneCount, ref int[] longCount, ref int[] doubleCount, ref int[] DateTimeCount, ref int[] nullCount, ref bool[] allSameFlg)
         {
             int nCol = cells.Count();
 
@@ -264,8 +264,8 @@ namespace CsvAnalysisAndFilterTool
             //1カラムごとに判定
             for (int j = 0; j < nCol; j++)
             {
-                //空欄の判定
-                if (cells[j] == "") blankCount[j]++;
+                //nullの判定
+                if (NULL_STR_LIST.Contains(cells[j])) nullCount[j]++;
                 //整数intの判定
                 if (int.TryParse(cells[j], out tmpi))
                 {
