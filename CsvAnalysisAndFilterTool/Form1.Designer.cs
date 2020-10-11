@@ -145,6 +145,7 @@
             // 
             // dataGridViewStats
             // 
+            this.dataGridViewStats.AllowUserToAddRows = false;
             this.dataGridViewStats.ColumnHeadersHeightSizeMode = System.Windows.Forms.DataGridViewColumnHeadersHeightSizeMode.AutoSize;
             this.dataGridViewStats.Location = new System.Drawing.Point(12, 285);
             this.dataGridViewStats.Name = "dataGridViewStats";

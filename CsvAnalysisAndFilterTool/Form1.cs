@@ -78,35 +78,7 @@ namespace CsvAnalysisAndFilterTool
                         headerNames = line.Split(',');
                         nCol = headerNames.Length;//カラム数保持
                     }
-                    //1行目がヘッダーでないとき、ヘッダー名は列カウントを登録
-                    else
-                    {
-                        for (int j = 0; j < nCol; j++) headerNames[j] = (j + 1).ToString();
-                    }
                     
-                    //各種変数の初期化
-                    intCount = new int[nCol];
-                    zeroCount = new int[nCol];
-                    oneCount = new int[nCol];
-                    longCount = new int[nCol];
-                    doubleCount = new int[nCol];
-                    DateTimeCount = new int[nCol];
-                    nullCount = new int[nCol];
-                    allSameFlg = new bool[nCol];
-                    rowCount = 0;
-                    for (int j = 0; j < nCol; j++)
-                    {
-                        intCount[j] = 0;
-                        zeroCount[j] = 0;
-                        oneCount[j] = 0;
-                        longCount[j] = 0;
-                        doubleCount[j] = 0;
-                        DateTimeCount[j] = 0;
-                        nullCount[j] = 0;
-                        allSameFlg[j] = true;
-                    }
-                    
-
                     //型の判定用変数
                     int tmpi = 0;//int用
                     long tmpl = 0;//long用
@@ -117,8 +89,39 @@ namespace CsvAnalysisAndFilterTool
                     {
                         line = sr.ReadLine();//1行読込
                         cells = line.Split(',');
-                        //最初の行の保持
-                        if (rowCount == 0) firstRow = line.Split(',');
+                        
+                        //最初の行の処理
+                        if (rowCount == 0)
+                        {
+                            firstRow = line.Split(',');
+                            //1行目がヘッダーでないとき、カラム数保持＆ヘッダー名は列カウントを登録
+                            if (!firstHeaderFlg)
+                            {
+                                nCol = cells.Length;
+                                headerNames = Enumerable.Range(1, nCol).Select(a => a.ToString()).ToArray();
+                            }
+                            //各種変数の初期化
+                            intCount = new int[nCol];
+                            zeroCount = new int[nCol];
+                            oneCount = new int[nCol];
+                            longCount = new int[nCol];
+                            doubleCount = new int[nCol];
+                            DateTimeCount = new int[nCol];
+                            nullCount = new int[nCol];
+                            allSameFlg = new bool[nCol];
+                            rowCount = 0;
+                            for (int j = 0; j < nCol; j++)
+                            {
+                                intCount[j] = 0;
+                                zeroCount[j] = 0;
+                                oneCount[j] = 0;
+                                longCount[j] = 0;
+                                doubleCount[j] = 0;
+                                DateTimeCount[j] = 0;
+                                nullCount[j] = 0;
+                                allSameFlg[j] = true;
+                            }
+                        }
 
                         //1カラムごとに判定
                         for (int j = 0; j < nCol; j++)
