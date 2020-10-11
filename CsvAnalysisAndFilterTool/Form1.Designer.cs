@@ -49,12 +49,18 @@
             this.groupBoxOutputEncode = new System.Windows.Forms.GroupBox();
             this.radioButtonUTF8 = new System.Windows.Forms.RadioButton();
             this.radioButtonShiftJIS = new System.Windows.Forms.RadioButton();
+            this.groupBoxStatsSettings = new System.Windows.Forms.GroupBox();
+            this.label5 = new System.Windows.Forms.Label();
+            this.label4 = new System.Windows.Forms.Label();
+            this.numericUpDownAllowStrRatio = new System.Windows.Forms.NumericUpDown();
             this.statusStrip1.SuspendLayout();
             ((System.ComponentModel.ISupportInitialize)(this.dataGridViewReadCSV)).BeginInit();
             ((System.ComponentModel.ISupportInitialize)(this.dataGridViewStats)).BeginInit();
             ((System.ComponentModel.ISupportInitialize)(this.dataGridViewExtractColumnsAndFilters)).BeginInit();
             ((System.ComponentModel.ISupportInitialize)(this.numericUpDownMaxOutputRows)).BeginInit();
             this.groupBoxOutputEncode.SuspendLayout();
+            this.groupBoxStatsSettings.SuspendLayout();
+            ((System.ComponentModel.ISupportInitialize)(this.numericUpDownAllowStrRatio)).BeginInit();
             this.SuspendLayout();
             // 
             // statusStrip1
@@ -99,7 +105,7 @@
             // 
             this.groupBox1.Location = new System.Drawing.Point(1018, 12);
             this.groupBox1.Name = "groupBox1";
-            this.groupBox1.Size = new System.Drawing.Size(152, 473);
+            this.groupBox1.Size = new System.Drawing.Size(152, 311);
             this.groupBox1.TabIndex = 3;
             this.groupBox1.TabStop = false;
             this.groupBox1.Text = "各種ツール起動";
@@ -273,11 +279,60 @@
             this.radioButtonShiftJIS.Text = "Shift-JIS";
             this.radioButtonShiftJIS.UseVisualStyleBackColor = true;
             // 
+            // groupBoxStatsSettings
+            // 
+            this.groupBoxStatsSettings.Controls.Add(this.label5);
+            this.groupBoxStatsSettings.Controls.Add(this.label4);
+            this.groupBoxStatsSettings.Controls.Add(this.numericUpDownAllowStrRatio);
+            this.groupBoxStatsSettings.Location = new System.Drawing.Point(1018, 329);
+            this.groupBoxStatsSettings.Name = "groupBoxStatsSettings";
+            this.groupBoxStatsSettings.Size = new System.Drawing.Size(152, 190);
+            this.groupBoxStatsSettings.TabIndex = 18;
+            this.groupBoxStatsSettings.TabStop = false;
+            this.groupBoxStatsSettings.Text = "型判定の設定";
+            // 
+            // label5
+            // 
+            this.label5.AutoSize = true;
+            this.label5.Location = new System.Drawing.Point(119, 60);
+            this.label5.Name = "label5";
+            this.label5.Size = new System.Drawing.Size(24, 19);
+            this.label5.TabIndex = 2;
+            this.label5.Text = "%";
+            // 
+            // label4
+            // 
+            this.label4.AutoSize = true;
+            this.label4.Location = new System.Drawing.Point(6, 36);
+            this.label4.Name = "label4";
+            this.label4.Size = new System.Drawing.Size(107, 19);
+            this.label4.TabIndex = 1;
+            this.label4.Text = "・文字列許容率";
+            // 
+            // numericUpDownAllowStrRatio
+            // 
+            this.numericUpDownAllowStrRatio.DecimalPlaces = 1;
+            this.numericUpDownAllowStrRatio.Increment = new decimal(new int[] {
+            1,
+            0,
+            0,
+            65536});
+            this.numericUpDownAllowStrRatio.Location = new System.Drawing.Point(41, 58);
+            this.numericUpDownAllowStrRatio.Name = "numericUpDownAllowStrRatio";
+            this.numericUpDownAllowStrRatio.Size = new System.Drawing.Size(72, 27);
+            this.numericUpDownAllowStrRatio.TabIndex = 0;
+            this.numericUpDownAllowStrRatio.Value = new decimal(new int[] {
+            5,
+            0,
+            0,
+            0});
+            // 
             // Form1
             // 
             this.AutoScaleDimensions = new System.Drawing.SizeF(9F, 19F);
             this.AutoScaleMode = System.Windows.Forms.AutoScaleMode.Font;
             this.ClientSize = new System.Drawing.Size(1182, 673);
+            this.Controls.Add(this.groupBoxStatsSettings);
             this.Controls.Add(this.groupBoxOutputEncode);
             this.Controls.Add(this.label2);
             this.Controls.Add(this.numericUpDownMaxOutputRows);
@@ -308,6 +363,9 @@
             ((System.ComponentModel.ISupportInitialize)(this.numericUpDownMaxOutputRows)).EndInit();
             this.groupBoxOutputEncode.ResumeLayout(false);
             this.groupBoxOutputEncode.PerformLayout();
+            this.groupBoxStatsSettings.ResumeLayout(false);
+            this.groupBoxStatsSettings.PerformLayout();
+            ((System.ComponentModel.ISupportInitialize)(this.numericUpDownAllowStrRatio)).EndInit();
             this.ResumeLayout(false);
             this.PerformLayout();
 
@@ -336,6 +394,10 @@
         private System.Windows.Forms.GroupBox groupBoxOutputEncode;
         private System.Windows.Forms.RadioButton radioButtonUTF8;
         private System.Windows.Forms.RadioButton radioButtonShiftJIS;
+        private System.Windows.Forms.GroupBox groupBoxStatsSettings;
+        private System.Windows.Forms.Label label5;
+        private System.Windows.Forms.Label label4;
+        private System.Windows.Forms.NumericUpDown numericUpDownAllowStrRatio;
     }
 }
 

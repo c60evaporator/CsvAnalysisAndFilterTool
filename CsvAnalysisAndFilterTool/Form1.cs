@@ -16,19 +16,21 @@ namespace CsvAnalysisAndFilterTool
         {
             InitializeComponent();
         }
+        //クラス内変数
         private List<string> NULL_STR_LIST = new List<string>() { "", "null", "nan" };
-        private string readCSVPath;//読み込んだ元CSVのパス
-        private int nRow;//行数
-        private List<List<int>> intValueList;//整数データのみ保持したリスト(数値以外はint.MaxValueとして保持)
-        private List<List<long>> longValueList;//64bit整数データのみ保持したリスト(数値以外はlong.MaxValueとして保持)
-        private List<List<double>> doubleValueList;//小数データのみ保持したリスト(数値以外はint.MaxValueとして保持)
-        private List<List<DateTime>> datetimeValueList;//時間データのみ保持したリスト(数値以外はGlobalVar.MinDateTimeとして保持)
+        private double _allowStrRatio = 0.0;//文字列許容率（文字列の割合がこの割合を超えなければ数値判定する）
+        private string _readCSVPath;//読み込んだ元CSVのパス
+        private int _nRow;//行数
+        private List<List<int>> _intValueList;//整数データのみ保持したリスト(数値以外はint.MaxValueとして保持)
+        private List<List<long>> _longValueList;//64bit整数データのみ保持したリスト(数値以外はlong.MaxValueとして保持)
+        private List<List<double>> _doubleValueList;//小数データのみ保持したリスト(数値以外はint.MaxValueとして保持)
+        private List<List<DateTime>> _datetimeValueList;//時間データのみ保持したリスト(数値以外はGlobalVar.MinDateTimeとして保持)
 
         //起動時の初期化
         private void Form1_Load(object sender, EventArgs e)
         {
-            readCSVPath = null;
-            nRow = 0;
+            _readCSVPath = null;
+            _nRow = 0;
         }
 
         //StatusStrip表示用関数
@@ -59,10 +61,10 @@ namespace CsvAnalysisAndFilterTool
             System.Text.Encoding enc = System.Text.Encoding.GetEncoding("Shift_JIS");
 
             //CSVが存在するときのみ、読み込む
-            if (System.IO.File.Exists(readCSVPath))//ファイルが存在しているときのみ処理を進める
+            if (System.IO.File.Exists(_readCSVPath))//ファイルが存在しているときのみ処理を進める
             {
                 //CSVファイルのオープン 
-                using (System.IO.StreamReader sr = new System.IO.StreamReader(readCSVPath, enc))
+                using (System.IO.StreamReader sr = new System.IO.StreamReader(_readCSVPath, enc))
                 {
                     string line = null;//1行読込用変数
                     string[] cells = null;//1行を1マス毎に分割した配列
@@ -161,7 +163,7 @@ namespace CsvAnalysisAndFilterTool
                     }
 
                     //行数の保持と表示
-                    nRow = rowCount;
+                    _nRow = rowCount;
                     labelRowCount.Text = "総行数" + rowCount.ToString();
 
                     //型の判定結果の表示
@@ -186,11 +188,11 @@ namespace CsvAnalysisAndFilterTool
                         if ((double)nullCount[j] / rowCount == 1) row[j] = "全て空白";
                         else if ((double)zeroCount[j] / rowCount == 1) row[j] = "全て0";
                         else if (allSameFlg[j]) row[j] = "全て同一値「" + firstRow[j] + "」";
-                        else if ((double)(zeroCount[j] + oneCount[j]) / rowCount == 1) row[j] = "Boolean";
-                        else if ((double)intCount[j] / (rowCount - nullCount[j]) >= GlobalVar.valueJudgeRatio && longCount[j] == 0 && doubleCount[j] == 0) row[j] = "整数";
-                        else if ((double)(intCount[j] + longCount[j]) / (rowCount - nullCount[j]) >= GlobalVar.valueJudgeRatio && doubleCount[j] == 0) row[j] = "64bit整数";
-                        else if ((double)(intCount[j] + longCount[j] + doubleCount[j]) / (rowCount - nullCount[j]) >= GlobalVar.valueJudgeRatio) row[j] = "小数";
-                        else if ((double)DateTimeCount[j] / (rowCount - nullCount[j]) >= GlobalVar.valueJudgeRatio) row[j] = "日時";
+                        else if ((double)(zeroCount[j] + oneCount[j]) / rowCount == 1) row[j] = "Boolean";//ブーリアン（0 or 1のみのとき）
+                        else if ((double)intCount[j] / (rowCount - nullCount[j]) >= 1 - _allowStrRatio && longCount[j] == 0 && doubleCount[j] == 0) row[j] = "整数";
+                        else if ((double)(intCount[j] + longCount[j]) / (rowCount - nullCount[j]) >= 1 - _allowStrRatio && doubleCount[j] == 0) row[j] = "64bit整数";
+                        else if ((double)(intCount[j] + longCount[j] + doubleCount[j]) / (rowCount - nullCount[j]) >= 1 - _allowStrRatio) row[j] = "小数";
+                        else if ((double)DateTimeCount[j] / (rowCount - nullCount[j]) >= 1 - _allowStrRatio) row[j] = "日時";
                         else row[j] = "文字列";
                     }
                     dataTableStats.Rows.Add(row);
@@ -264,10 +266,10 @@ namespace CsvAnalysisAndFilterTool
             DateTime tmpdt = new DateTime();//DateTime用          
 
             //数値データ保持用リストの初期化
-            intValueList = new List<List<int>>();//整数データ保持用リスト
-            longValueList = new List<List<long>>();//64bit整数データ保持用リスト
-            doubleValueList = new List<List<double>>();//小数データ保持用リスト
-            datetimeValueList = new List<List<DateTime>>(); ;//日時データ保持用リスト
+            _intValueList = new List<List<int>>();//整数データ保持用リスト
+            _longValueList = new List<List<long>>();//64bit整数データ保持用リスト
+            _doubleValueList = new List<List<double>>();//小数データ保持用リスト
+            _datetimeValueList = new List<List<DateTime>>(); ;//日時データ保持用リスト
 
             //カラムを走査し、数値データ保持用リストを初期化＆各種数値保持対象フラグの判定
             for (int j = 0; j < nCol; j++)
@@ -277,10 +279,10 @@ namespace CsvAnalysisAndFilterTool
                 List<long> longValueCol = new List<long>();
                 List<double> doubleValueCol = new List<double>();
                 List<DateTime> datetimeValueCol = new List<DateTime>();
-                intValueList.Add(intValueCol);
-                longValueList.Add(longValueCol);
-                doubleValueList.Add(doubleValueCol);
-                datetimeValueList.Add(datetimeValueCol);
+                _intValueList.Add(intValueCol);
+                _longValueList.Add(longValueCol);
+                _doubleValueList.Add(doubleValueCol);
+                _datetimeValueList.Add(datetimeValueCol);
 
                 //各種数値保持対象フラグの判定
                 //整数のとき
@@ -301,10 +303,10 @@ namespace CsvAnalysisAndFilterTool
             System.Text.Encoding enc = System.Text.Encoding.GetEncoding("Shift_JIS");
 
             //CSVが存在するときのみ、読み込む
-            if (System.IO.File.Exists(readCSVPath))//ファイルが存在しているときのみ処理を進める
+            if (System.IO.File.Exists(_readCSVPath))//ファイルが存在しているときのみ処理を進める
             {
                 //CSVファイルのオープン 
-                using (System.IO.StreamReader sr = new System.IO.StreamReader(readCSVPath, enc))
+                using (System.IO.StreamReader sr = new System.IO.StreamReader(_readCSVPath, enc))
                 {
                     string line = null;//1行読込用変数
                     string[] cells = null;//1行を1マス毎に分割した配列
@@ -326,42 +328,42 @@ namespace CsvAnalysisAndFilterTool
                             {
                                 if (int.TryParse(cells[j], out tmpi))
                                 {
-                                    intValueList[j].Add(tmpi);
+                                    _intValueList[j].Add(tmpi);
                                 }
-                                else intValueList[j].Add(int.MaxValue);
+                                else _intValueList[j].Add(int.MaxValue);
                             }
                             //64bit整数longの判定
                             else if (longCalcFlg[j])
                             {
                                 if (long.TryParse(cells[j], out tmpl))
                                 {
-                                    longValueList[j].Add(tmpl);
+                                    _longValueList[j].Add(tmpl);
                                 }
-                                else longValueList[j].Add(long.MaxValue);
+                                else _longValueList[j].Add(long.MaxValue);
                             }
                             //小数doubleの判定
                             else if (doubleCalcFlg[j])
                             {
                                 if (double.TryParse(cells[j], out tmpd))
                                 {
-                                    doubleValueList[j].Add(tmpd);
+                                    _doubleValueList[j].Add(tmpd);
                                 }
-                                else doubleValueList[j].Add(double.MaxValue);
+                                else _doubleValueList[j].Add(double.MaxValue);
                             }
                             //日時DateTimeの判定
                             else if (datetimeCalcFlg[j])
                             {
                                 if (DateTime.TryParse(cells[j], out tmpdt))
                                 {
-                                    datetimeValueList[j].Add(tmpdt);
+                                    _datetimeValueList[j].Add(tmpdt);
                                 }
-                                else datetimeValueList[j].Add(maxDateTime);
+                                else _datetimeValueList[j].Add(maxDateTime);
                             }
                         }
                         //処理している行数を表示
                         if (rowCount % 100 == 0)
                         {
-                            DisplayStatusStrip("数値の読込中" + rowCount.ToString() + "/" + nRow.ToString() + "行目");
+                            DisplayStatusStrip("数値の読込中" + rowCount.ToString() + "/" + _nRow.ToString() + "行目");
                         }
                     }
                 }
@@ -377,22 +379,22 @@ namespace CsvAnalysisAndFilterTool
                     //整数
                     if (intCalcFlg[j])
                     {
-                        row[j] = intValueList[j].Where(a => a != int.MaxValue).Min().ToString();
+                        row[j] = _intValueList[j].Where(a => a != int.MaxValue).Min().ToString();
                     }
                     //64bit整数
                     else if (longCalcFlg[j])
                     {
-                        row[j] = longValueList[j].Where(a => a != long.MaxValue).Min().ToString();
+                        row[j] = _longValueList[j].Where(a => a != long.MaxValue).Min().ToString();
                     }
                     //小数
                     else if (doubleCalcFlg[j])
                     {
-                        row[j] = doubleValueList[j].Where(a => a != double.MaxValue).Min().ToString("f4");
+                        row[j] = _doubleValueList[j].Where(a => a != double.MaxValue).Min().ToString("f4");
                     }
                     //日時
                     else if (datetimeCalcFlg[j])
                     {
-                        row[j] = datetimeValueList[j].Where(a => a != maxDateTime).Min().ToString();
+                        row[j] = _datetimeValueList[j].Where(a => a != maxDateTime).Min().ToString();
                     }
                 }
                 dataTableStats.Rows.Add(row);
@@ -405,22 +407,22 @@ namespace CsvAnalysisAndFilterTool
                     //整数
                     if (intCalcFlg[j])
                     {
-                        row[j] = intValueList[j].Where(a => a != int.MaxValue).Max().ToString();
+                        row[j] = _intValueList[j].Where(a => a != int.MaxValue).Max().ToString();
                     }
                     //64bit整数
                     if (longCalcFlg[j])
                     {
-                        row[j] = longValueList[j].Where(a => a != long.MaxValue).Max().ToString();
+                        row[j] = _longValueList[j].Where(a => a != long.MaxValue).Max().ToString();
                     }
                     //小数
                     else if (doubleCalcFlg[j])
                     {
-                        row[j] = doubleValueList[j].Where(a => a != double.MaxValue).Max().ToString("f4");
+                        row[j] = _doubleValueList[j].Where(a => a != double.MaxValue).Max().ToString("f4");
                     }
                     //日時
                     else if (datetimeCalcFlg[j])
                     {
-                        row[j] = datetimeValueList[j].Where(a => a != maxDateTime).Max().ToString();
+                        row[j] = _datetimeValueList[j].Where(a => a != maxDateTime).Max().ToString();
                     }
                 }
                 dataTableStats.Rows.Add(row);
@@ -433,17 +435,17 @@ namespace CsvAnalysisAndFilterTool
                     //整数
                     if (intCalcFlg[j])
                     {
-                        row[j] = intValueList[j].Where(a => a != int.MaxValue).Average().ToString("f4");
+                        row[j] = _intValueList[j].Where(a => a != int.MaxValue).Average().ToString("f4");
                     }
                     //64bit整数
                     if (longCalcFlg[j])
                     {
-                        row[j] = longValueList[j].Where(a => a != long.MaxValue).Average().ToString("f4");
+                        row[j] = _longValueList[j].Where(a => a != long.MaxValue).Average().ToString("f4");
                     }
                     //小数
                     else if (doubleCalcFlg[j])
                     {
-                        row[j] = doubleValueList[j].Where(a => a != double.MaxValue).Average().ToString("f4");
+                        row[j] = _doubleValueList[j].Where(a => a != double.MaxValue).Average().ToString("f4");
                     }
                 }
                 dataTableStats.Rows.Add(row);
@@ -457,7 +459,7 @@ namespace CsvAnalysisAndFilterTool
                     if (intCalcFlg[j])
                     {
                         //intのみ抜き出し(null除去)
-                        var intList = intValueList[j].Where(a => a != int.MaxValue).ToList();
+                        var intList = _intValueList[j].Where(a => a != int.MaxValue).ToList();
                         //double型に変換
                         List<double> intToDoubleList = new List<double>();
                         foreach (var intvalue in intList) intToDoubleList.Add((double)intvalue);
@@ -468,7 +470,7 @@ namespace CsvAnalysisAndFilterTool
                     if (longCalcFlg[j])
                     {
                         //longのみ抜き出し(null除去)
-                        var longList = longValueList[j].Where(a => a != long.MaxValue).ToList();
+                        var longList = _longValueList[j].Where(a => a != long.MaxValue).ToList();
                         //double型に変換
                         List<double> longToDoubleList = new List<double>();
                         foreach (var longvalue in longList) longToDoubleList.Add((double)longvalue);
@@ -479,7 +481,7 @@ namespace CsvAnalysisAndFilterTool
                     else if (doubleCalcFlg[j])
                     {
                         //doubleのみ抜き出し(null除去)
-                        var doubleList = doubleValueList[j].Where(a => a != double.MaxValue).ToList();
+                        var doubleList = _doubleValueList[j].Where(a => a != double.MaxValue).ToList();
                         //標準偏差算出
                         row[j] = CSStatistics.CalcStdev(doubleList).ToString("f4");
                     }
@@ -498,7 +500,7 @@ namespace CsvAnalysisAndFilterTool
                     //整数
                     if (intCalcFlg[j])
                     {
-                        var intList = intValueList[j].Where(a => a != int.MaxValue).ToList();
+                        var intList = _intValueList[j].Where(a => a != int.MaxValue).ToList();
                         intList.Sort();
                         rowMedian[j] = intList[intList.Count / 2].ToString();
                         rowQuarter[j] = intList[intList.Count / 4].ToString();
@@ -507,7 +509,7 @@ namespace CsvAnalysisAndFilterTool
                     //64bit整数
                     if (longCalcFlg[j])
                     {
-                        var longList = longValueList[j].Where(a => a != long.MaxValue).ToList();
+                        var longList = _longValueList[j].Where(a => a != long.MaxValue).ToList();
                         longList.Sort();
                         rowMedian[j] = longList[longList.Count / 2].ToString();
                         rowQuarter[j] = longList[longList.Count / 4].ToString();
@@ -516,7 +518,7 @@ namespace CsvAnalysisAndFilterTool
                     //小数
                     else if (doubleCalcFlg[j])
                     {
-                        var doubleList = doubleValueList[j].Where(a => a != double.MaxValue).ToList();
+                        var doubleList = _doubleValueList[j].Where(a => a != double.MaxValue).ToList();
                         doubleList.Sort();
                         rowMedian[j] = doubleList[doubleList.Count / 2];
                         rowQuarter[j] = doubleList[doubleList.Count / 4];
@@ -525,7 +527,7 @@ namespace CsvAnalysisAndFilterTool
                     //日時
                     else if (datetimeCalcFlg[j])
                     {
-                        var datetimeList = datetimeValueList[j].Where(a => a != maxDateTime).ToList();
+                        var datetimeList = _datetimeValueList[j].Where(a => a != maxDateTime).ToList();
                         datetimeList.Sort();
                         rowMedian[j] = datetimeList[datetimeList.Count / 2];
                         rowQuarter[j] = datetimeList[datetimeList.Count / 4];
@@ -972,10 +974,10 @@ namespace CsvAnalysisAndFilterTool
             if(radioButtonUTF8.Checked) enc = System.Text.Encoding.GetEncoding("UTF-8");
 
             //CSVが存在するときのみ、読み込む
-            if (System.IO.File.Exists(readCSVPath))//ファイルが存在しているときのみ処理を進める
+            if (System.IO.File.Exists(_readCSVPath))//ファイルが存在しているときのみ処理を進める
             {
                 //CSVファイルのオープン 
-                using (System.IO.StreamReader sr = new System.IO.StreamReader(readCSVPath, enc))
+                using (System.IO.StreamReader sr = new System.IO.StreamReader(_readCSVPath, enc))
                 {
                     using (System.IO.StreamWriter sw = new System.IO.StreamWriter(savePath, false, enc))
                     {
@@ -1063,7 +1065,7 @@ namespace CsvAnalysisAndFilterTool
                                 else if (filterFlg[j] == 10)
                                 {
                                     //値がUpValue以下なら、次列の判定に
-                                    if (intValueList[j][readRowCount] <= UpValue[j]) continue;
+                                    if (_intValueList[j][readRowCount] <= UpValue[j]) continue;
                                     //一致しなかったとき、削除フラグをtrueにしてその行の判定を終了
                                     else
                                     {
@@ -1075,7 +1077,7 @@ namespace CsvAnalysisAndFilterTool
                                 else if (filterFlg[j] == 20)
                                 {
                                     //値がUpValue以下なら、次列の判定に
-                                    if (longValueList[j][readRowCount] <= UpValue[j]) continue;
+                                    if (_longValueList[j][readRowCount] <= UpValue[j]) continue;
                                     //一致しなかったとき、削除フラグをtrueにしてその行の判定を終了
                                     else
                                     {
@@ -1087,7 +1089,7 @@ namespace CsvAnalysisAndFilterTool
                                 else if (filterFlg[j] == 30)
                                 {
                                     //値がUpValue以下なら、次列の判定に
-                                    if (doubleValueList[j][readRowCount] <= UpValue[j]) continue;
+                                    if (_doubleValueList[j][readRowCount] <= UpValue[j]) continue;
                                     //一致しなかったとき、削除フラグをtrueにしてその行の判定を終了
                                     else
                                     {
@@ -1099,7 +1101,7 @@ namespace CsvAnalysisAndFilterTool
                                 else if (filterFlg[j] == 40)
                                 {
                                     //値がUpDateTime以下なら、次列の判定に
-                                    if (datetimeValueList[j][readRowCount] <= UpDateTime[j]) continue;
+                                    if (_datetimeValueList[j][readRowCount] <= UpDateTime[j]) continue;
                                     //一致しなかったとき、削除フラグをtrueにしてその行の判定を終了
                                     else
                                     {
@@ -1113,7 +1115,7 @@ namespace CsvAnalysisAndFilterTool
                                 else if (filterFlg[j] == 11)
                                 {
                                     //値の取得
-                                    int cellValue = intValueList[j][readRowCount];
+                                    int cellValue = _intValueList[j][readRowCount];
                                     //値が整数(int.MaxValueでない)かつDownValue以上なら、次列の判定に
                                     if (cellValue != maxInt && cellValue >= DownValue[j]) continue;
                                     //一致しなかったとき、削除フラグをtrueにしてその行の判定を終了
@@ -1127,7 +1129,7 @@ namespace CsvAnalysisAndFilterTool
                                 else if (filterFlg[j] == 21)
                                 {
                                     //値の取得
-                                    long cellValue = longValueList[j][readRowCount];
+                                    long cellValue = _longValueList[j][readRowCount];
                                     //値が整数(long.MaxValueでない)かつDownValue以上なら、次列の判定に
                                     if (cellValue != maxLong && cellValue >= DownValue[j]) continue;
                                     //一致しなかったとき、削除フラグをtrueにしてその行の判定を終了
@@ -1141,7 +1143,7 @@ namespace CsvAnalysisAndFilterTool
                                 else if (filterFlg[j] == 31)
                                 {
                                     //値の取得
-                                    double cellValue = doubleValueList[j][readRowCount];
+                                    double cellValue = _doubleValueList[j][readRowCount];
                                     //値が小数(double.MaxValueでない)かつDownValue以上なら、次列の判定に
                                     if (cellValue != maxDouble && cellValue >= DownValue[j]) continue;
                                     //一致しなかったとき、削除フラグをtrueにしてその行の判定を終了
@@ -1155,7 +1157,7 @@ namespace CsvAnalysisAndFilterTool
                                 else if (filterFlg[j] == 41)
                                 {
                                     //値の取得
-                                    DateTime cellValue = datetimeValueList[j][readRowCount];
+                                    DateTime cellValue = _datetimeValueList[j][readRowCount];
                                     //値が日時(DateTime.MaxValueでない)かつDownDateTime以上なら、次列の判定に
                                     if (cellValue != maxDateTime && cellValue >= DownDateTime[j]) continue;
                                     //一致しなかったとき、削除フラグをtrueにしてその行の判定を終了
@@ -1171,7 +1173,7 @@ namespace CsvAnalysisAndFilterTool
                                 else if (filterFlg[j] == 12)
                                 {
                                     //値の取得
-                                    int cellValue = intValueList[j][readRowCount];
+                                    int cellValue = _intValueList[j][readRowCount];
                                     //値がDownValue以上UpValue以下なら、次列の判定に
                                     if (cellValue <= UpValue[j] && cellValue >= DownValue[j]) continue;
                                     //一致しなかったとき、削除フラグをtrueにしてその行の判定を終了
@@ -1185,7 +1187,7 @@ namespace CsvAnalysisAndFilterTool
                                 else if (filterFlg[j] == 22)
                                 {
                                     //値の取得
-                                    long cellValue = longValueList[j][readRowCount];
+                                    long cellValue = _longValueList[j][readRowCount];
                                     //値がDownValue以上UpValue以下なら、次列の判定に
                                     if (cellValue <= UpValue[j] && cellValue >= DownValue[j]) continue;
                                     //一致しなかったとき、削除フラグをtrueにしてその行の判定を終了
@@ -1199,7 +1201,7 @@ namespace CsvAnalysisAndFilterTool
                                 else if (filterFlg[j] == 32)
                                 {
                                     //値の取得
-                                    double cellValue = doubleValueList[j][readRowCount];
+                                    double cellValue = _doubleValueList[j][readRowCount];
                                     //値がDownValue以上UpValue以下な、次列の判定に
                                     if (cellValue <= UpValue[j] && cellValue >= DownValue[j]) continue;
                                     //一致しなかったとき、削除フラグをtrueにしてその行の判定を終了
@@ -1213,7 +1215,7 @@ namespace CsvAnalysisAndFilterTool
                                 else if (filterFlg[j] == 42)
                                 {
                                     //値の取得
-                                    DateTime cellValue = datetimeValueList[j][readRowCount];
+                                    DateTime cellValue = _datetimeValueList[j][readRowCount];
                                     //値がDownValue以上UpValue以下な、次列の判定に
                                     if (cellValue <= UpDateTime[j] && cellValue >= DownDateTime[j]) continue;
                                     //一致しなかったとき、削除フラグをtrueにしてその行の判定を終了
@@ -1231,7 +1233,7 @@ namespace CsvAnalysisAndFilterTool
 
                             if (readRowCount % 100 == 0)
                             {
-                                DisplayStatusStrip(readRowCount.ToString() + "/" + nRow.ToString() + "行目読込中    " + outputRowCount.ToString() + "行出力済");
+                                DisplayStatusStrip(readRowCount.ToString() + "/" + _nRow.ToString() + "行目読込中    " + outputRowCount.ToString() + "行出力済");
                             }
 
                             //削除フラグONのとき、出力せずに次の行へ
@@ -1260,8 +1262,8 @@ namespace CsvAnalysisAndFilterTool
 
                 //出力完了を表示
                 {
-                    DisplayStatusStrip(outputRowCount.ToString() + "行 / " + nRow.ToString() + "行出力");
-                    MessageBox.Show("出力完了\r\n" + outputRowCount.ToString() + "行 / " + nRow.ToString() + "行出力");
+                    DisplayStatusStrip(outputRowCount.ToString() + "行 / " + _nRow.ToString() + "行出力");
+                    MessageBox.Show("出力完了\r\n" + outputRowCount.ToString() + "行 / " + _nRow.ToString() + "行出力");
                 }
             }
         }
@@ -1286,10 +1288,10 @@ namespace CsvAnalysisAndFilterTool
             }
 
             //読み込んだパスを保持
-            readCSVPath = fName[0];
+            _readCSVPath = fName[0];
 
             //dataGridViewに表示
-            RefreshReadCSVDataGrid(readCSVPath);
+            RefreshReadCSVDataGrid(_readCSVPath);
         }
 
         private void dataGridViewReadCSV_DragEnter(object sender, DragEventArgs e)
@@ -1309,7 +1311,9 @@ namespace CsvAnalysisAndFilterTool
 
         private void buttonJudgeColumnType_Click(object sender, EventArgs e)
         {
-            //型の判定
+            //凡例
+            _allowStrRatio = (double)numericUpDownAllowStrRatio.Value * 0.01;
+            //型の判定保持用配列
             int[] intCount = null;
             int[] zeroCount = null;
             int[] oneCount = null;
