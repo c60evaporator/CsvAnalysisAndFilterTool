@@ -70,11 +70,20 @@ namespace CsvAnalysisAndFilterTool
                     bool firstHeaderFlg = checkBoxFirstRowHeader.Checked;//1行目がヘッダーかどうかを表すフラグ
                     int nCol = 0;//カラム数数
                     string[] firstRow = null;//1行目保持用（全行同一値の判定用）
-                    //1行目の読込
-                    line = sr.ReadLine();//1行読込
-                    headerNames = line.Split(',');
-                    nCol = headerNames.Length;//カラム数保持
 
+                    //1行目がヘッダーのとき、1行目を読み込んでヘッダー名に登録
+                    if (firstHeaderFlg)
+                    {
+                        line = sr.ReadLine();//1行読込
+                        headerNames = line.Split(',');
+                        nCol = headerNames.Length;//カラム数保持
+                    }
+                    //1行目がヘッダーでないとき、ヘッダー名は列カウントを登録
+                    else
+                    {
+                        for (int j = 0; j < nCol; j++) headerNames[j] = (j + 1).ToString();
+                    }
+                    
                     //各種変数の初期化
                     intCount = new int[nCol];
                     zeroCount = new int[nCol];
@@ -96,15 +105,7 @@ namespace CsvAnalysisAndFilterTool
                         nullCount[j] = 0;
                         allSameFlg[j] = true;
                     }
-
-                    //1行目がヘッダーでないとき、1行目も型の判定実施＆ヘッダ名は列カウントに変更
-                    if (!firstHeaderFlg)
-                    {
-                        FirstRowValueTypeJudge(headerNames, ref intCount, ref zeroCount, ref oneCount, ref longCount, ref doubleCount, ref DateTimeCount, ref nullCount, ref allSameFlg);
-                        firstRow = line.Split(',');
-                        rowCount++;
-                        for (int j = 0; j < nCol; j++) headerNames[j] = (j + 1).ToString();
-                    }
+                    
 
                     //型の判定用変数
                     int tmpi = 0;//int用
@@ -116,8 +117,8 @@ namespace CsvAnalysisAndFilterTool
                     {
                         line = sr.ReadLine();//1行読込
                         cells = line.Split(',');
-                        //最初の行の保持（1行目がヘッダーのとき）
-                        if (rowCount == 0 && firstHeaderFlg) firstRow = line.Split(',');
+                        //最初の行の保持
+                        if (rowCount == 0) firstRow = line.Split(',');
 
                         //1カラムごとに判定
                         for (int j = 0; j < nCol; j++)
@@ -151,13 +152,9 @@ namespace CsvAnalysisAndFilterTool
                                 DateTimeCount[j]++;
                             }
                         }
-                        rowCount++;
-
+                        rowCount++;//行カウントをプラス
                         //処理している行数を表示
-                        if (rowCount % 100 == 0)
-                        {
-                            DisplayStatusStrip("型の判定中" + rowCount.ToString() + "行目");
-                        }
+                        if (rowCount % 100 == 0) DisplayStatusStrip("型の判定中" + rowCount.ToString() + "行目");
                     }
 
                     //行数の保持と表示
@@ -206,12 +203,13 @@ namespace CsvAnalysisAndFilterTool
                             if (i == 3) row[j] = ((double)zeroCount[j] / rowCount * 100).ToString("f1") + "%";//0の割合
                             if (i == 4) row[j] = ((double)oneCount[j] / rowCount * 100).ToString("f1") + "%";//1の割合
                             if (i == 5) row[j] = ((double)DateTimeCount[j] / rowCount * 100).ToString("f1") + "%";//日時の割合
-                            if (i == 6) row[j] = ((double)nullCount[j] / rowCount * 100).ToString("f1") + "%";//空欄の割合
+                            if (i == 6) row[j] = ((double)nullCount[j] / rowCount * 100).ToString("f1") + "%";//nullの割合
                         }
                         dataTableStats.Rows.Add(row);
                     }
                     //DataGridViewに登録
                     dataGridViewStats.DataSource = dataTableStats;
+
                     //行ヘッダーの表示
                     dataGridViewStats.Rows[0].HeaderCell.Value = "列名";
                     dataGridViewStats.Rows[1].HeaderCell.Value = "型判定結果";
@@ -221,78 +219,20 @@ namespace CsvAnalysisAndFilterTool
                     dataGridViewStats.Rows[5].HeaderCell.Value = "0の割合";
                     dataGridViewStats.Rows[6].HeaderCell.Value = "1の割合";
                     dataGridViewStats.Rows[7].HeaderCell.Value = "日時の割合";
-                    dataGridViewStats.Rows[8].HeaderCell.Value = "空欄の割合";
-
+                    dataGridViewStats.Rows[8].HeaderCell.Value = "nullの割合";
                     //行ヘッダーの幅を調節する
                     dataGridViewStats.RowHeadersWidth = 120;
-
                     //先頭行を太字に
                     dataGridViewStats.Rows[0].DefaultCellStyle.Font = new Font(dataGridViewStats.DefaultCellStyle.Font, FontStyle.Bold);
-
                     //先頭行と2行目（型判定）の固定
                     dataGridViewStats.Rows[0].Frozen = true;
                     dataGridViewStats.Rows[1].Frozen = true;
-
                     //読込完了を表示
                     DisplayStatusStrip("型のカウント完了");
                     labelCalcStats.Text = "型判定結果";
                 }
             }
         }
-
-        /// <summary>
-        /// 1行目がヘッダーでないときの処理→1行目も型の判定
-        /// </summary>
-        /// <param name="cells">判定する行（1行目）</param>
-        /// <param name="intCount">整数の数</param>
-        /// <param name="zeroCount">0の数</param>
-        /// <param name="oneCount">1の数</param>
-        /// <param name="doubleCount">小数の数</param>
-        /// <param name="DateTimeCount">日時の数</param>
-        /// <param name="nullCount">nullの数</param>
-        /// <param name="allSameFlg">全て同一値かどうかを表すフラグ</param>
-        private void FirstRowValueTypeJudge(string[] cells, ref int[] intCount, ref int[] zeroCount, ref int[] oneCount, ref int[] longCount, ref int[] doubleCount, ref int[] DateTimeCount, ref int[] nullCount, ref bool[] allSameFlg)
-        {
-            int nCol = cells.Count();
-
-            //型の判定用変数
-            int tmpi = 0;//int用
-            long tmpl = 0;//long用
-            double tmpd = 0.0;//double用
-            DateTime tmpdt = new DateTime();//DateTime用          
-
-            //1カラムごとに判定
-            for (int j = 0; j < nCol; j++)
-            {
-                //nullの判定
-                if (NULL_STR_LIST.Contains(cells[j])) nullCount[j]++;
-                //整数intの判定
-                if (int.TryParse(cells[j], out tmpi))
-                {
-                    intCount[j]++;
-                    if (tmpi == 0) zeroCount[j]++;//0は別途カウント
-                    else if (tmpi == 1) oneCount[j]++;//1は別途カウント
-                }
-                //64bit整数longの判定
-                if (long.TryParse(cells[j], out tmpl))
-                {
-                    longCount[j]++;
-                }
-                //小数doubleの判定
-                else if (double.TryParse(cells[j], out tmpd))
-                {
-                    doubleCount[j]++;
-                    if (tmpd == 0) zeroCount[j]++;//0は別途カウント
-                    else if (tmpd == 1) oneCount[j]++;//1は別途カウント
-                }
-                //日時DateTimeの判定
-                else if (DateTime.TryParse(cells[j], out tmpdt))
-                {
-                    DateTimeCount[j]++;
-                }
-            }
-        }
-
 
         //数値データの保持と、統計値(最大、最小、平均、メディアン、1/4分位点、標準偏差)の算出
         private void CalcStats()
