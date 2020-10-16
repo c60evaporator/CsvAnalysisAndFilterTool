@@ -172,6 +172,7 @@
             // dataGridViewExtractColumnsAndFilters
             // 
             this.dataGridViewExtractColumnsAndFilters.AllowDrop = true;
+            this.dataGridViewExtractColumnsAndFilters.AllowUserToAddRows = false;
             this.dataGridViewExtractColumnsAndFilters.ColumnHeadersHeightSizeMode = System.Windows.Forms.DataGridViewColumnHeadersHeightSizeMode.AutoSize;
             this.dataGridViewExtractColumnsAndFilters.Location = new System.Drawing.Point(12, 525);
             this.dataGridViewExtractColumnsAndFilters.Name = "dataGridViewExtractColumnsAndFilters";
