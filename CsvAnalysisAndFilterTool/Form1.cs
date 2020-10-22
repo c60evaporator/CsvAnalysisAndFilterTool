@@ -65,7 +65,9 @@ namespace CsvAnalysisAndFilterTool
                 dataGridViewExtractColumnsAndFilters);
 
             //dataGridViewに表示
-            csvAnalysisAndFilter.RefreshReadCSVDataGrid();
+            var enc = System.Text.Encoding.GetEncoding("Shift_JIS");
+            if (radioButtonUTF8.Checked) enc = System.Text.Encoding.GetEncoding("UTF-8");
+            csvAnalysisAndFilter.RefreshReadCSVDataGrid(enc);
         }
 
         private void dataGridViewReadCSV_DragEnter(object sender, DragEventArgs e)

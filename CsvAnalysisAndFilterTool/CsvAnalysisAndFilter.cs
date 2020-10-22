@@ -660,11 +660,8 @@ namespace CsvAnalysisAndFilterTool
         }
 
         //読み込んだCSVの最初1000行表示
-        public void RefreshReadCSVDataGrid()
+        public void RefreshReadCSVDataGrid(Encoding enc)
         {
-            //CSVファイルを読み込むときに使うEncoding
-            System.Text.Encoding enc = System.Text.Encoding.GetEncoding("Shift_JIS");
-
             //CSVが存在するときのみ、読み込む
             if (System.IO.File.Exists(_readCSVPath))//ファイルが存在しているときのみ処理を進める
             {
