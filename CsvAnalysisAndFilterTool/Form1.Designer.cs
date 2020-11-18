@@ -33,9 +33,8 @@
             this.dataGridViewReadCSV = new System.Windows.Forms.DataGridView();
             this.labelReadCSV = new System.Windows.Forms.Label();
             this.groupBox1 = new System.Windows.Forms.GroupBox();
-            this.buttonJudgeColumnType = new System.Windows.Forms.Button();
+            this.buttonJudgeColTypeAndCalcStats = new System.Windows.Forms.Button();
             this.labelCalcStats = new System.Windows.Forms.Label();
-            this.buttonCalcStats = new System.Windows.Forms.Button();
             this.buttonOutputStatsCSV = new System.Windows.Forms.Button();
             this.dataGridViewStats = new System.Windows.Forms.DataGridView();
             this.label3 = new System.Windows.Forms.Label();
@@ -110,15 +109,15 @@
             this.groupBox1.TabStop = false;
             this.groupBox1.Text = "各種ツール起動";
             // 
-            // buttonJudgeColumnType
+            // buttonJudgeColTypeAndCalcStats
             // 
-            this.buttonJudgeColumnType.Location = new System.Drawing.Point(245, 251);
-            this.buttonJudgeColumnType.Name = "buttonJudgeColumnType";
-            this.buttonJudgeColumnType.Size = new System.Drawing.Size(113, 28);
-            this.buttonJudgeColumnType.TabIndex = 4;
-            this.buttonJudgeColumnType.Text = "↓型の判定";
-            this.buttonJudgeColumnType.UseVisualStyleBackColor = true;
-            this.buttonJudgeColumnType.Click += new System.EventHandler(this.buttonJudgeColumnType_Click);
+            this.buttonJudgeColTypeAndCalcStats.Location = new System.Drawing.Point(245, 251);
+            this.buttonJudgeColTypeAndCalcStats.Name = "buttonJudgeColTypeAndCalcStats";
+            this.buttonJudgeColTypeAndCalcStats.Size = new System.Drawing.Size(200, 28);
+            this.buttonJudgeColTypeAndCalcStats.TabIndex = 4;
+            this.buttonJudgeColTypeAndCalcStats.Text = "↓型の判定＆統計値算出";
+            this.buttonJudgeColTypeAndCalcStats.UseVisualStyleBackColor = true;
+            this.buttonJudgeColTypeAndCalcStats.Click += new System.EventHandler(this.buttonJudgeColTypeAndCalcStats_Click);
             // 
             // labelCalcStats
             // 
@@ -128,16 +127,6 @@
             this.labelCalcStats.Size = new System.Drawing.Size(231, 19);
             this.labelCalcStats.TabIndex = 5;
             this.labelCalcStats.Text = "ボタンを押して統計値算出してください";
-            // 
-            // buttonCalcStats
-            // 
-            this.buttonCalcStats.Location = new System.Drawing.Point(364, 251);
-            this.buttonCalcStats.Name = "buttonCalcStats";
-            this.buttonCalcStats.Size = new System.Drawing.Size(129, 28);
-            this.buttonCalcStats.TabIndex = 6;
-            this.buttonCalcStats.Text = "→統計値算出";
-            this.buttonCalcStats.UseVisualStyleBackColor = true;
-            this.buttonCalcStats.Click += new System.EventHandler(this.buttonCalcStats_Click);
             // 
             // buttonOutputStatsCSV
             // 
@@ -345,9 +334,8 @@
             this.Controls.Add(this.label3);
             this.Controls.Add(this.dataGridViewStats);
             this.Controls.Add(this.buttonOutputStatsCSV);
-            this.Controls.Add(this.buttonCalcStats);
             this.Controls.Add(this.labelCalcStats);
-            this.Controls.Add(this.buttonJudgeColumnType);
+            this.Controls.Add(this.buttonJudgeColTypeAndCalcStats);
             this.Controls.Add(this.groupBox1);
             this.Controls.Add(this.labelReadCSV);
             this.Controls.Add(this.dataGridViewReadCSV);
@@ -379,9 +367,8 @@
         private System.Windows.Forms.DataGridView dataGridViewReadCSV;
         private System.Windows.Forms.Label labelReadCSV;
         private System.Windows.Forms.GroupBox groupBox1;
-        private System.Windows.Forms.Button buttonJudgeColumnType;
+        private System.Windows.Forms.Button buttonJudgeColTypeAndCalcStats;
         private System.Windows.Forms.Label labelCalcStats;
-        private System.Windows.Forms.Button buttonCalcStats;
         private System.Windows.Forms.Button buttonOutputStatsCSV;
         private System.Windows.Forms.DataGridView dataGridViewStats;
         private System.Windows.Forms.Label label3;

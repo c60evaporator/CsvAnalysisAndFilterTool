@@ -85,13 +85,9 @@ namespace CsvAnalysisAndFilterTool
             }
         }
 
-        private void buttonJudgeColumnType_Click(object sender, EventArgs e)
+        private void buttonJudgeColTypeAndCalcStats_Click(object sender, EventArgs e)
         {
             csvAnalysisAndFilter.ParseCount(checkBoxFirstRowHeader.Checked);
-        }
-
-        private void buttonCalcStats_Click(object sender, EventArgs e)
-        {
             csvAnalysisAndFilter.CalcStats();
         }
 

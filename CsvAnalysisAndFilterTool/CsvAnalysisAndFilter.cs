@@ -84,6 +84,8 @@ namespace CsvAnalysisAndFilterTool
         /// <param name="firstHeaderFlg">1行目がヘッダーかどうかを表すフラグ</param>
         public void ParseCount(bool firstHeaderFlg)
         {
+            //DataGridViewの初期化
+            _dataGridViewStats.Columns.Clear();
             //firstHeaderFlgを読み込み
             _firstHeaderFlg = firstHeaderFlg;
 
@@ -291,6 +293,10 @@ namespace CsvAnalysisAndFilterTool
                 return;
             }
 
+            //フィルタ用DataGridViewの初期化
+            _dataGridViewExtractColumnsAndFilters.Columns.Clear();
+            
+            //統計値DataGridViewのデータ取得
             DataTable dataTableStats = (DataTable)_dataGridViewStats.DataSource;
 
             //各種変数の宣言
