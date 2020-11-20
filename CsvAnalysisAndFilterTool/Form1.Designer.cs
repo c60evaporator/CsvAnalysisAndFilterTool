@@ -52,6 +52,9 @@
             this.label5 = new System.Windows.Forms.Label();
             this.label4 = new System.Windows.Forms.Label();
             this.numericUpDownAllowStrRatio = new System.Windows.Forms.NumericUpDown();
+            this.tableLayoutPanel1 = new System.Windows.Forms.TableLayoutPanel();
+            this.panel1 = new System.Windows.Forms.Panel();
+            this.panel2 = new System.Windows.Forms.Panel();
             this.statusStrip1.SuspendLayout();
             ((System.ComponentModel.ISupportInitialize)(this.dataGridViewReadCSV)).BeginInit();
             ((System.ComponentModel.ISupportInitialize)(this.dataGridViewStats)).BeginInit();
@@ -60,6 +63,9 @@
             this.groupBoxOutputEncode.SuspendLayout();
             this.groupBoxStatsSettings.SuspendLayout();
             ((System.ComponentModel.ISupportInitialize)(this.numericUpDownAllowStrRatio)).BeginInit();
+            this.tableLayoutPanel1.SuspendLayout();
+            this.panel1.SuspendLayout();
+            this.panel2.SuspendLayout();
             this.SuspendLayout();
             // 
             // statusStrip1
@@ -83,10 +89,11 @@
             // 
             this.dataGridViewReadCSV.AllowDrop = true;
             this.dataGridViewReadCSV.ColumnHeadersHeightSizeMode = System.Windows.Forms.DataGridViewColumnHeadersHeightSizeMode.AutoSize;
-            this.dataGridViewReadCSV.Location = new System.Drawing.Point(12, 31);
+            this.dataGridViewReadCSV.Dock = System.Windows.Forms.DockStyle.Fill;
+            this.dataGridViewReadCSV.Location = new System.Drawing.Point(3, 23);
             this.dataGridViewReadCSV.Name = "dataGridViewReadCSV";
             this.dataGridViewReadCSV.RowTemplate.Height = 24;
-            this.dataGridViewReadCSV.Size = new System.Drawing.Size(1000, 214);
+            this.dataGridViewReadCSV.Size = new System.Drawing.Size(1016, 185);
             this.dataGridViewReadCSV.TabIndex = 1;
             this.dataGridViewReadCSV.DragDrop += new System.Windows.Forms.DragEventHandler(this.dataGridViewReadCSV_DragDrop);
             this.dataGridViewReadCSV.DragEnter += new System.Windows.Forms.DragEventHandler(this.dataGridViewReadCSV_DragEnter);
@@ -94,7 +101,7 @@
             // labelReadCSV
             // 
             this.labelReadCSV.AutoSize = true;
-            this.labelReadCSV.Location = new System.Drawing.Point(12, 9);
+            this.labelReadCSV.Location = new System.Drawing.Point(3, 0);
             this.labelReadCSV.Name = "labelReadCSV";
             this.labelReadCSV.Size = new System.Drawing.Size(294, 19);
             this.labelReadCSV.TabIndex = 2;
@@ -102,16 +109,18 @@
             // 
             // groupBox1
             // 
-            this.groupBox1.Location = new System.Drawing.Point(1018, 12);
+            this.groupBox1.Dock = System.Windows.Forms.DockStyle.Fill;
+            this.groupBox1.Location = new System.Drawing.Point(1025, 3);
             this.groupBox1.Name = "groupBox1";
-            this.groupBox1.Size = new System.Drawing.Size(152, 311);
+            this.tableLayoutPanel1.SetRowSpan(this.groupBox1, 2);
+            this.groupBox1.Size = new System.Drawing.Size(154, 205);
             this.groupBox1.TabIndex = 3;
             this.groupBox1.TabStop = false;
             this.groupBox1.Text = "各種ツール起動";
             // 
             // buttonJudgeColTypeAndCalcStats
             // 
-            this.buttonJudgeColTypeAndCalcStats.Location = new System.Drawing.Point(245, 251);
+            this.buttonJudgeColTypeAndCalcStats.Location = new System.Drawing.Point(260, 2);
             this.buttonJudgeColTypeAndCalcStats.Name = "buttonJudgeColTypeAndCalcStats";
             this.buttonJudgeColTypeAndCalcStats.Size = new System.Drawing.Size(200, 28);
             this.buttonJudgeColTypeAndCalcStats.TabIndex = 4;
@@ -122,7 +131,7 @@
             // labelCalcStats
             // 
             this.labelCalcStats.AutoSize = true;
-            this.labelCalcStats.Location = new System.Drawing.Point(8, 259);
+            this.labelCalcStats.Location = new System.Drawing.Point(6, 7);
             this.labelCalcStats.Name = "labelCalcStats";
             this.labelCalcStats.Size = new System.Drawing.Size(231, 19);
             this.labelCalcStats.TabIndex = 5;
@@ -130,7 +139,7 @@
             // 
             // buttonOutputStatsCSV
             // 
-            this.buttonOutputStatsCSV.Location = new System.Drawing.Point(875, 251);
+            this.buttonOutputStatsCSV.Location = new System.Drawing.Point(707, 3);
             this.buttonOutputStatsCSV.Name = "buttonOutputStatsCSV";
             this.buttonOutputStatsCSV.Size = new System.Drawing.Size(137, 28);
             this.buttonOutputStatsCSV.TabIndex = 7;
@@ -142,17 +151,18 @@
             // 
             this.dataGridViewStats.AllowUserToAddRows = false;
             this.dataGridViewStats.ColumnHeadersHeightSizeMode = System.Windows.Forms.DataGridViewColumnHeadersHeightSizeMode.AutoSize;
-            this.dataGridViewStats.Location = new System.Drawing.Point(12, 285);
+            this.dataGridViewStats.Dock = System.Windows.Forms.DockStyle.Fill;
+            this.dataGridViewStats.Location = new System.Drawing.Point(3, 254);
             this.dataGridViewStats.Name = "dataGridViewStats";
             this.dataGridViewStats.RowTemplate.Height = 24;
-            this.dataGridViewStats.Size = new System.Drawing.Size(1000, 200);
+            this.dataGridViewStats.Size = new System.Drawing.Size(1016, 196);
             this.dataGridViewStats.TabIndex = 8;
             this.dataGridViewStats.Scroll += new System.Windows.Forms.ScrollEventHandler(this.dataGridViewStats_Scroll);
             // 
             // label3
             // 
             this.label3.AutoSize = true;
-            this.label3.Location = new System.Drawing.Point(12, 496);
+            this.label3.Location = new System.Drawing.Point(3, 10);
             this.label3.Name = "label3";
             this.label3.Size = new System.Drawing.Size(145, 19);
             this.label3.TabIndex = 9;
@@ -163,16 +173,17 @@
             this.dataGridViewExtractColumnsAndFilters.AllowDrop = true;
             this.dataGridViewExtractColumnsAndFilters.AllowUserToAddRows = false;
             this.dataGridViewExtractColumnsAndFilters.ColumnHeadersHeightSizeMode = System.Windows.Forms.DataGridViewColumnHeadersHeightSizeMode.AutoSize;
-            this.dataGridViewExtractColumnsAndFilters.Location = new System.Drawing.Point(12, 525);
+            this.dataGridViewExtractColumnsAndFilters.Dock = System.Windows.Forms.DockStyle.Fill;
+            this.dataGridViewExtractColumnsAndFilters.Location = new System.Drawing.Point(3, 496);
             this.dataGridViewExtractColumnsAndFilters.Name = "dataGridViewExtractColumnsAndFilters";
             this.dataGridViewExtractColumnsAndFilters.RowTemplate.Height = 24;
-            this.dataGridViewExtractColumnsAndFilters.Size = new System.Drawing.Size(1000, 120);
+            this.dataGridViewExtractColumnsAndFilters.Size = new System.Drawing.Size(1016, 149);
             this.dataGridViewExtractColumnsAndFilters.TabIndex = 10;
             this.dataGridViewExtractColumnsAndFilters.Scroll += new System.Windows.Forms.ScrollEventHandler(this.dataGridViewExtractColumnsAndFilters_Scroll);
             // 
             // buttonExtract
             // 
-            this.buttonExtract.Location = new System.Drawing.Point(245, 491);
+            this.buttonExtract.Location = new System.Drawing.Point(260, 3);
             this.buttonExtract.Name = "buttonExtract";
             this.buttonExtract.Size = new System.Drawing.Size(101, 28);
             this.buttonExtract.TabIndex = 11;
@@ -185,7 +196,7 @@
             this.checkBoxFirstRowHeader.AutoSize = true;
             this.checkBoxFirstRowHeader.Checked = true;
             this.checkBoxFirstRowHeader.CheckState = System.Windows.Forms.CheckState.Checked;
-            this.checkBoxFirstRowHeader.Location = new System.Drawing.Point(499, 255);
+            this.checkBoxFirstRowHeader.Location = new System.Drawing.Point(475, 6);
             this.checkBoxFirstRowHeader.Name = "checkBoxFirstRowHeader";
             this.checkBoxFirstRowHeader.Size = new System.Drawing.Size(178, 23);
             this.checkBoxFirstRowHeader.TabIndex = 12;
@@ -195,7 +206,7 @@
             // labelRowCount
             // 
             this.labelRowCount.AutoSize = true;
-            this.labelRowCount.Location = new System.Drawing.Point(683, 256);
+            this.labelRowCount.Location = new System.Drawing.Point(659, 7);
             this.labelRowCount.Name = "labelRowCount";
             this.labelRowCount.Size = new System.Drawing.Size(23, 19);
             this.labelRowCount.TabIndex = 13;
@@ -204,7 +215,7 @@
             // label1
             // 
             this.label1.AutoSize = true;
-            this.label1.Location = new System.Drawing.Point(782, 496);
+            this.label1.Location = new System.Drawing.Point(471, 8);
             this.label1.Name = "label1";
             this.label1.Size = new System.Drawing.Size(99, 19);
             this.label1.TabIndex = 14;
@@ -212,7 +223,7 @@
             // 
             // numericUpDownMaxOutputRows
             // 
-            this.numericUpDownMaxOutputRows.Location = new System.Drawing.Point(887, 494);
+            this.numericUpDownMaxOutputRows.Location = new System.Drawing.Point(573, 4);
             this.numericUpDownMaxOutputRows.Maximum = new decimal(new int[] {
             9999,
             0,
@@ -230,7 +241,7 @@
             // label2
             // 
             this.label2.AutoSize = true;
-            this.label2.Location = new System.Drawing.Point(973, 496);
+            this.label2.Location = new System.Drawing.Point(659, 8);
             this.label2.Name = "label2";
             this.label2.Size = new System.Drawing.Size(39, 19);
             this.label2.TabIndex = 16;
@@ -240,9 +251,11 @@
             // 
             this.groupBoxOutputEncode.Controls.Add(this.radioButtonUTF8);
             this.groupBoxOutputEncode.Controls.Add(this.radioButtonShiftJIS);
-            this.groupBoxOutputEncode.Location = new System.Drawing.Point(1018, 525);
+            this.groupBoxOutputEncode.Dock = System.Windows.Forms.DockStyle.Fill;
+            this.groupBoxOutputEncode.Location = new System.Drawing.Point(1025, 456);
             this.groupBoxOutputEncode.Name = "groupBoxOutputEncode";
-            this.groupBoxOutputEncode.Size = new System.Drawing.Size(152, 120);
+            this.tableLayoutPanel1.SetRowSpan(this.groupBoxOutputEncode, 2);
+            this.groupBoxOutputEncode.Size = new System.Drawing.Size(154, 189);
             this.groupBoxOutputEncode.TabIndex = 17;
             this.groupBoxOutputEncode.TabStop = false;
             this.groupBoxOutputEncode.Text = "出力エンコード";
@@ -274,9 +287,11 @@
             this.groupBoxStatsSettings.Controls.Add(this.label5);
             this.groupBoxStatsSettings.Controls.Add(this.label4);
             this.groupBoxStatsSettings.Controls.Add(this.numericUpDownAllowStrRatio);
-            this.groupBoxStatsSettings.Location = new System.Drawing.Point(1018, 329);
+            this.groupBoxStatsSettings.Dock = System.Windows.Forms.DockStyle.Fill;
+            this.groupBoxStatsSettings.Location = new System.Drawing.Point(1025, 214);
             this.groupBoxStatsSettings.Name = "groupBoxStatsSettings";
-            this.groupBoxStatsSettings.Size = new System.Drawing.Size(152, 190);
+            this.tableLayoutPanel1.SetRowSpan(this.groupBoxStatsSettings, 2);
+            this.groupBoxStatsSettings.Size = new System.Drawing.Size(154, 236);
             this.groupBoxStatsSettings.TabIndex = 18;
             this.groupBoxStatsSettings.TabStop = false;
             this.groupBoxStatsSettings.Text = "型判定の設定";
@@ -317,28 +332,65 @@
             0,
             0});
             // 
+            // tableLayoutPanel1
+            // 
+            this.tableLayoutPanel1.ColumnCount = 2;
+            this.tableLayoutPanel1.ColumnStyles.Add(new System.Windows.Forms.ColumnStyle(System.Windows.Forms.SizeType.Percent, 100F));
+            this.tableLayoutPanel1.ColumnStyles.Add(new System.Windows.Forms.ColumnStyle(System.Windows.Forms.SizeType.Absolute, 160F));
+            this.tableLayoutPanel1.Controls.Add(this.labelReadCSV, 0, 0);
+            this.tableLayoutPanel1.Controls.Add(this.dataGridViewReadCSV, 0, 1);
+            this.tableLayoutPanel1.Controls.Add(this.groupBoxOutputEncode, 1, 4);
+            this.tableLayoutPanel1.Controls.Add(this.groupBoxStatsSettings, 1, 2);
+            this.tableLayoutPanel1.Controls.Add(this.dataGridViewStats, 0, 3);
+            this.tableLayoutPanel1.Controls.Add(this.dataGridViewExtractColumnsAndFilters, 0, 5);
+            this.tableLayoutPanel1.Controls.Add(this.groupBox1, 1, 0);
+            this.tableLayoutPanel1.Controls.Add(this.panel1, 0, 2);
+            this.tableLayoutPanel1.Controls.Add(this.panel2, 0, 4);
+            this.tableLayoutPanel1.Dock = System.Windows.Forms.DockStyle.Fill;
+            this.tableLayoutPanel1.Location = new System.Drawing.Point(0, 0);
+            this.tableLayoutPanel1.Name = "tableLayoutPanel1";
+            this.tableLayoutPanel1.RowCount = 6;
+            this.tableLayoutPanel1.RowStyles.Add(new System.Windows.Forms.RowStyle(System.Windows.Forms.SizeType.Absolute, 20F));
+            this.tableLayoutPanel1.RowStyles.Add(new System.Windows.Forms.RowStyle(System.Windows.Forms.SizeType.Percent, 35F));
+            this.tableLayoutPanel1.RowStyles.Add(new System.Windows.Forms.RowStyle(System.Windows.Forms.SizeType.Absolute, 40F));
+            this.tableLayoutPanel1.RowStyles.Add(new System.Windows.Forms.RowStyle(System.Windows.Forms.SizeType.Percent, 37F));
+            this.tableLayoutPanel1.RowStyles.Add(new System.Windows.Forms.RowStyle(System.Windows.Forms.SizeType.Absolute, 40F));
+            this.tableLayoutPanel1.RowStyles.Add(new System.Windows.Forms.RowStyle(System.Windows.Forms.SizeType.Percent, 28F));
+            this.tableLayoutPanel1.Size = new System.Drawing.Size(1182, 648);
+            this.tableLayoutPanel1.TabIndex = 19;
+            // 
+            // panel1
+            // 
+            this.panel1.Controls.Add(this.buttonOutputStatsCSV);
+            this.panel1.Controls.Add(this.labelRowCount);
+            this.panel1.Controls.Add(this.checkBoxFirstRowHeader);
+            this.panel1.Controls.Add(this.buttonJudgeColTypeAndCalcStats);
+            this.panel1.Controls.Add(this.labelCalcStats);
+            this.panel1.Dock = System.Windows.Forms.DockStyle.Fill;
+            this.panel1.Location = new System.Drawing.Point(3, 214);
+            this.panel1.Name = "panel1";
+            this.panel1.Size = new System.Drawing.Size(1016, 34);
+            this.panel1.TabIndex = 9;
+            // 
+            // panel2
+            // 
+            this.panel2.Controls.Add(this.label3);
+            this.panel2.Controls.Add(this.buttonExtract);
+            this.panel2.Controls.Add(this.label1);
+            this.panel2.Controls.Add(this.label2);
+            this.panel2.Controls.Add(this.numericUpDownMaxOutputRows);
+            this.panel2.Dock = System.Windows.Forms.DockStyle.Fill;
+            this.panel2.Location = new System.Drawing.Point(3, 456);
+            this.panel2.Name = "panel2";
+            this.panel2.Size = new System.Drawing.Size(1016, 34);
+            this.panel2.TabIndex = 10;
+            // 
             // Form1
             // 
             this.AutoScaleDimensions = new System.Drawing.SizeF(9F, 19F);
             this.AutoScaleMode = System.Windows.Forms.AutoScaleMode.Font;
             this.ClientSize = new System.Drawing.Size(1182, 673);
-            this.Controls.Add(this.groupBoxStatsSettings);
-            this.Controls.Add(this.groupBoxOutputEncode);
-            this.Controls.Add(this.label2);
-            this.Controls.Add(this.numericUpDownMaxOutputRows);
-            this.Controls.Add(this.label1);
-            this.Controls.Add(this.labelRowCount);
-            this.Controls.Add(this.checkBoxFirstRowHeader);
-            this.Controls.Add(this.buttonExtract);
-            this.Controls.Add(this.dataGridViewExtractColumnsAndFilters);
-            this.Controls.Add(this.label3);
-            this.Controls.Add(this.dataGridViewStats);
-            this.Controls.Add(this.buttonOutputStatsCSV);
-            this.Controls.Add(this.labelCalcStats);
-            this.Controls.Add(this.buttonJudgeColTypeAndCalcStats);
-            this.Controls.Add(this.groupBox1);
-            this.Controls.Add(this.labelReadCSV);
-            this.Controls.Add(this.dataGridViewReadCSV);
+            this.Controls.Add(this.tableLayoutPanel1);
             this.Controls.Add(this.statusStrip1);
             this.Font = new System.Drawing.Font("Meiryo UI", 9F, System.Drawing.FontStyle.Regular, System.Drawing.GraphicsUnit.Point, ((byte)(128)));
             this.Margin = new System.Windows.Forms.Padding(3, 4, 3, 4);
@@ -355,6 +407,12 @@
             this.groupBoxStatsSettings.ResumeLayout(false);
             this.groupBoxStatsSettings.PerformLayout();
             ((System.ComponentModel.ISupportInitialize)(this.numericUpDownAllowStrRatio)).EndInit();
+            this.tableLayoutPanel1.ResumeLayout(false);
+            this.tableLayoutPanel1.PerformLayout();
+            this.panel1.ResumeLayout(false);
+            this.panel1.PerformLayout();
+            this.panel2.ResumeLayout(false);
+            this.panel2.PerformLayout();
             this.ResumeLayout(false);
             this.PerformLayout();
 
@@ -386,6 +444,9 @@
         private System.Windows.Forms.Label label5;
         private System.Windows.Forms.Label label4;
         private System.Windows.Forms.NumericUpDown numericUpDownAllowStrRatio;
+        private System.Windows.Forms.TableLayoutPanel tableLayoutPanel1;
+        private System.Windows.Forms.Panel panel1;
+        private System.Windows.Forms.Panel panel2;
     }
 }
 
