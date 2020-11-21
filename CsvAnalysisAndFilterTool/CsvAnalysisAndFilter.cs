@@ -14,7 +14,7 @@ namespace CsvAnalysisAndFilterTool
         //クラス内変数
         private List<string> NULL_STR_LIST = new List<string>() { "", "null", "nan" };
         private double _allowStrRatio;//文字列許容率（文字列の割合がこの割合を超えなければ数値判定する）
-        private string _readCSVPath;//読み込んだ元CSVのパス
+        public string _readCSVPath;//読み込んだ元CSVのパス
         private bool _firstHeaderFlg;//1行目がヘッダーかどうかを表すフラグ
         private int _nRow;//行数
         private int[] _intCount;//整数の数

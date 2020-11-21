@@ -55,8 +55,10 @@
             this.tableLayoutPanel1 = new System.Windows.Forms.TableLayoutPanel();
             this.panel1 = new System.Windows.Forms.Panel();
             this.panel2 = new System.Windows.Forms.Panel();
+            this.buttonStartCsvMerge = new System.Windows.Forms.Button();
             this.statusStrip1.SuspendLayout();
             ((System.ComponentModel.ISupportInitialize)(this.dataGridViewReadCSV)).BeginInit();
+            this.groupBox1.SuspendLayout();
             ((System.ComponentModel.ISupportInitialize)(this.dataGridViewStats)).BeginInit();
             ((System.ComponentModel.ISupportInitialize)(this.dataGridViewExtractColumnsAndFilters)).BeginInit();
             ((System.ComponentModel.ISupportInitialize)(this.numericUpDownMaxOutputRows)).BeginInit();
@@ -73,7 +75,7 @@
             this.statusStrip1.ImageScalingSize = new System.Drawing.Size(20, 20);
             this.statusStrip1.Items.AddRange(new System.Windows.Forms.ToolStripItem[] {
             this.toolStripStatusLabel1});
-            this.statusStrip1.Location = new System.Drawing.Point(0, 648);
+            this.statusStrip1.Location = new System.Drawing.Point(0, 628);
             this.statusStrip1.Name = "statusStrip1";
             this.statusStrip1.Size = new System.Drawing.Size(1182, 25);
             this.statusStrip1.TabIndex = 0;
@@ -93,7 +95,7 @@
             this.dataGridViewReadCSV.Location = new System.Drawing.Point(3, 23);
             this.dataGridViewReadCSV.Name = "dataGridViewReadCSV";
             this.dataGridViewReadCSV.RowTemplate.Height = 24;
-            this.dataGridViewReadCSV.Size = new System.Drawing.Size(1016, 185);
+            this.dataGridViewReadCSV.Size = new System.Drawing.Size(1016, 178);
             this.dataGridViewReadCSV.TabIndex = 1;
             this.dataGridViewReadCSV.DragDrop += new System.Windows.Forms.DragEventHandler(this.dataGridViewReadCSV_DragDrop);
             this.dataGridViewReadCSV.DragEnter += new System.Windows.Forms.DragEventHandler(this.dataGridViewReadCSV_DragEnter);
@@ -109,11 +111,12 @@
             // 
             // groupBox1
             // 
+            this.groupBox1.Controls.Add(this.buttonStartCsvMerge);
             this.groupBox1.Dock = System.Windows.Forms.DockStyle.Fill;
             this.groupBox1.Location = new System.Drawing.Point(1025, 3);
             this.groupBox1.Name = "groupBox1";
-            this.tableLayoutPanel1.SetRowSpan(this.groupBox1, 2);
-            this.groupBox1.Size = new System.Drawing.Size(154, 205);
+            this.tableLayoutPanel1.SetRowSpan(this.groupBox1, 3);
+            this.groupBox1.Size = new System.Drawing.Size(154, 238);
             this.groupBox1.TabIndex = 3;
             this.groupBox1.TabStop = false;
             this.groupBox1.Text = "各種ツール起動";
@@ -152,10 +155,10 @@
             this.dataGridViewStats.AllowUserToAddRows = false;
             this.dataGridViewStats.ColumnHeadersHeightSizeMode = System.Windows.Forms.DataGridViewColumnHeadersHeightSizeMode.AutoSize;
             this.dataGridViewStats.Dock = System.Windows.Forms.DockStyle.Fill;
-            this.dataGridViewStats.Location = new System.Drawing.Point(3, 254);
+            this.dataGridViewStats.Location = new System.Drawing.Point(3, 247);
             this.dataGridViewStats.Name = "dataGridViewStats";
             this.dataGridViewStats.RowTemplate.Height = 24;
-            this.dataGridViewStats.Size = new System.Drawing.Size(1016, 196);
+            this.dataGridViewStats.Size = new System.Drawing.Size(1016, 189);
             this.dataGridViewStats.TabIndex = 8;
             this.dataGridViewStats.Scroll += new System.Windows.Forms.ScrollEventHandler(this.dataGridViewStats_Scroll);
             // 
@@ -174,10 +177,10 @@
             this.dataGridViewExtractColumnsAndFilters.AllowUserToAddRows = false;
             this.dataGridViewExtractColumnsAndFilters.ColumnHeadersHeightSizeMode = System.Windows.Forms.DataGridViewColumnHeadersHeightSizeMode.AutoSize;
             this.dataGridViewExtractColumnsAndFilters.Dock = System.Windows.Forms.DockStyle.Fill;
-            this.dataGridViewExtractColumnsAndFilters.Location = new System.Drawing.Point(3, 496);
+            this.dataGridViewExtractColumnsAndFilters.Location = new System.Drawing.Point(3, 482);
             this.dataGridViewExtractColumnsAndFilters.Name = "dataGridViewExtractColumnsAndFilters";
             this.dataGridViewExtractColumnsAndFilters.RowTemplate.Height = 24;
-            this.dataGridViewExtractColumnsAndFilters.Size = new System.Drawing.Size(1016, 149);
+            this.dataGridViewExtractColumnsAndFilters.Size = new System.Drawing.Size(1016, 143);
             this.dataGridViewExtractColumnsAndFilters.TabIndex = 10;
             this.dataGridViewExtractColumnsAndFilters.Scroll += new System.Windows.Forms.ScrollEventHandler(this.dataGridViewExtractColumnsAndFilters_Scroll);
             // 
@@ -252,10 +255,10 @@
             this.groupBoxOutputEncode.Controls.Add(this.radioButtonUTF8);
             this.groupBoxOutputEncode.Controls.Add(this.radioButtonShiftJIS);
             this.groupBoxOutputEncode.Dock = System.Windows.Forms.DockStyle.Fill;
-            this.groupBoxOutputEncode.Location = new System.Drawing.Point(1025, 456);
+            this.groupBoxOutputEncode.Location = new System.Drawing.Point(1025, 442);
             this.groupBoxOutputEncode.Name = "groupBoxOutputEncode";
             this.tableLayoutPanel1.SetRowSpan(this.groupBoxOutputEncode, 2);
-            this.groupBoxOutputEncode.Size = new System.Drawing.Size(154, 189);
+            this.groupBoxOutputEncode.Size = new System.Drawing.Size(154, 183);
             this.groupBoxOutputEncode.TabIndex = 17;
             this.groupBoxOutputEncode.TabStop = false;
             this.groupBoxOutputEncode.Text = "出力エンコード";
@@ -288,10 +291,9 @@
             this.groupBoxStatsSettings.Controls.Add(this.label4);
             this.groupBoxStatsSettings.Controls.Add(this.numericUpDownAllowStrRatio);
             this.groupBoxStatsSettings.Dock = System.Windows.Forms.DockStyle.Fill;
-            this.groupBoxStatsSettings.Location = new System.Drawing.Point(1025, 214);
+            this.groupBoxStatsSettings.Location = new System.Drawing.Point(1025, 247);
             this.groupBoxStatsSettings.Name = "groupBoxStatsSettings";
-            this.tableLayoutPanel1.SetRowSpan(this.groupBoxStatsSettings, 2);
-            this.groupBoxStatsSettings.Size = new System.Drawing.Size(154, 236);
+            this.groupBoxStatsSettings.Size = new System.Drawing.Size(154, 189);
             this.groupBoxStatsSettings.TabIndex = 18;
             this.groupBoxStatsSettings.TabStop = false;
             this.groupBoxStatsSettings.Text = "型判定の設定";
@@ -340,7 +342,7 @@
             this.tableLayoutPanel1.Controls.Add(this.labelReadCSV, 0, 0);
             this.tableLayoutPanel1.Controls.Add(this.dataGridViewReadCSV, 0, 1);
             this.tableLayoutPanel1.Controls.Add(this.groupBoxOutputEncode, 1, 4);
-            this.tableLayoutPanel1.Controls.Add(this.groupBoxStatsSettings, 1, 2);
+            this.tableLayoutPanel1.Controls.Add(this.groupBoxStatsSettings, 1, 3);
             this.tableLayoutPanel1.Controls.Add(this.dataGridViewStats, 0, 3);
             this.tableLayoutPanel1.Controls.Add(this.dataGridViewExtractColumnsAndFilters, 0, 5);
             this.tableLayoutPanel1.Controls.Add(this.groupBox1, 1, 0);
@@ -356,7 +358,7 @@
             this.tableLayoutPanel1.RowStyles.Add(new System.Windows.Forms.RowStyle(System.Windows.Forms.SizeType.Percent, 37F));
             this.tableLayoutPanel1.RowStyles.Add(new System.Windows.Forms.RowStyle(System.Windows.Forms.SizeType.Absolute, 40F));
             this.tableLayoutPanel1.RowStyles.Add(new System.Windows.Forms.RowStyle(System.Windows.Forms.SizeType.Percent, 28F));
-            this.tableLayoutPanel1.Size = new System.Drawing.Size(1182, 648);
+            this.tableLayoutPanel1.Size = new System.Drawing.Size(1182, 628);
             this.tableLayoutPanel1.TabIndex = 19;
             // 
             // panel1
@@ -367,7 +369,7 @@
             this.panel1.Controls.Add(this.buttonJudgeColTypeAndCalcStats);
             this.panel1.Controls.Add(this.labelCalcStats);
             this.panel1.Dock = System.Windows.Forms.DockStyle.Fill;
-            this.panel1.Location = new System.Drawing.Point(3, 214);
+            this.panel1.Location = new System.Drawing.Point(3, 207);
             this.panel1.Name = "panel1";
             this.panel1.Size = new System.Drawing.Size(1016, 34);
             this.panel1.TabIndex = 9;
@@ -380,16 +382,26 @@
             this.panel2.Controls.Add(this.label2);
             this.panel2.Controls.Add(this.numericUpDownMaxOutputRows);
             this.panel2.Dock = System.Windows.Forms.DockStyle.Fill;
-            this.panel2.Location = new System.Drawing.Point(3, 456);
+            this.panel2.Location = new System.Drawing.Point(3, 442);
             this.panel2.Name = "panel2";
             this.panel2.Size = new System.Drawing.Size(1016, 34);
             this.panel2.TabIndex = 10;
+            // 
+            // buttonStartCsvMerge
+            // 
+            this.buttonStartCsvMerge.Location = new System.Drawing.Point(10, 26);
+            this.buttonStartCsvMerge.Name = "buttonStartCsvMerge";
+            this.buttonStartCsvMerge.Size = new System.Drawing.Size(133, 28);
+            this.buttonStartCsvMerge.TabIndex = 0;
+            this.buttonStartCsvMerge.Text = "CSV Merge";
+            this.buttonStartCsvMerge.UseVisualStyleBackColor = true;
+            this.buttonStartCsvMerge.Click += new System.EventHandler(this.buttonStartCsvMerge_Click);
             // 
             // Form1
             // 
             this.AutoScaleDimensions = new System.Drawing.SizeF(9F, 19F);
             this.AutoScaleMode = System.Windows.Forms.AutoScaleMode.Font;
-            this.ClientSize = new System.Drawing.Size(1182, 673);
+            this.ClientSize = new System.Drawing.Size(1182, 653);
             this.Controls.Add(this.tableLayoutPanel1);
             this.Controls.Add(this.statusStrip1);
             this.Font = new System.Drawing.Font("Meiryo UI", 9F, System.Drawing.FontStyle.Regular, System.Drawing.GraphicsUnit.Point, ((byte)(128)));
@@ -399,6 +411,7 @@
             this.statusStrip1.ResumeLayout(false);
             this.statusStrip1.PerformLayout();
             ((System.ComponentModel.ISupportInitialize)(this.dataGridViewReadCSV)).EndInit();
+            this.groupBox1.ResumeLayout(false);
             ((System.ComponentModel.ISupportInitialize)(this.dataGridViewStats)).EndInit();
             ((System.ComponentModel.ISupportInitialize)(this.dataGridViewExtractColumnsAndFilters)).EndInit();
             ((System.ComponentModel.ISupportInitialize)(this.numericUpDownMaxOutputRows)).EndInit();
@@ -447,6 +460,7 @@
         private System.Windows.Forms.TableLayoutPanel tableLayoutPanel1;
         private System.Windows.Forms.Panel panel1;
         private System.Windows.Forms.Panel panel2;
+        private System.Windows.Forms.Button buttonStartCsvMerge;
     }
 }
 

@@ -23,6 +23,7 @@ namespace CsvAnalysisAndFilterTool
         //起動時の初期化
         private void Form1_Load(object sender, EventArgs e)
         {
+            csvAnalysisAndFilter = null;
         }
 
         //StatusStrip表示用メソッド
@@ -180,6 +181,15 @@ namespace CsvAnalysisAndFilterTool
                     sw.WriteLine(string.Join(",", rowString));
                 }
                 DisplayStatusStrip("出力完了");
+            }
+        }
+
+        private void buttonStartCsvMerge_Click(object sender, EventArgs e)
+        {
+            using (FormMerge formMerge = new FormMerge())
+            {
+                if(csvAnalysisAndFilter is null) formMerge.ShowDialog(this, null);
+                else formMerge.ShowDialog(this, csvAnalysisAndFilter._readCSVPath);
             }
         }
     }
